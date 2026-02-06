@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FinSmart - Система рекомендацій з фінансової грамотності{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1 class="hero-title">Система рекомендацій з фінансової грамотності</h1>
+                <p class="hero-description">
+                    Персоналізована система для покращення ваших фінансових знань через індивідуальні рекомендації
+                    курсів. Навчайтеся у зручний час та досягайте фінансової свободи!
+                </p>
+                <a href="{% url 'courses' %}" class="btn-primary">Почати навчання</a>
+            </div>
+
+            <div class="hero-right">
+                <img src="{% static 'img/image 10.png' %}" alt="Hero Image" class="hero-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Advantages Section -->
+<section class="advantages">
+    <div class="container">
+        <h2 class="section-title">Наші переваги</h2>
+        <div class="advantages-grid">
+            <div class="advantage-card animate-on-scroll">
+                <div class="advantage-icon">
+                    <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="16" r="8" fill="white" />
+                        <path d="M12 36C12 28 16 24 24 24C32 24 36 28 36 36" stroke="white" stroke-width="3"
+                            fill="none" />
+                        <circle cx="24" cy="24" r="3" fill="white" />
+                    </svg>
+                </div>
+                <h3 class="advantage-title">Орієнтована на користувача</h3>
+                <p class="advantage-description">Оберіть курс, який підходить саме вам — за темою та складністю</p>
+            </div>
+
+            <div class="advantage-card animate-on-scroll">
+                <div class="advantage-icon">
+                    <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="8" y="12" width="32" height="24" rx="2" stroke="white" stroke-width="3" fill="none" />
+                        <line x1="16" y1="20" x2="32" y2="20" stroke="white" stroke-width="3" />
+                        <line x1="16" y1="28" x2="26" y2="28" stroke="white" stroke-width="3" />
+                    </svg>
+                </div>
+                <h3 class="advantage-title">Безкоштовні матеріали</h3>
+                <p class="advantage-description">Доступ до якісних освітніх матеріалів без додаткових витрат</p>
+            </div>
+
+            <div class="advantage-card animate-on-scroll">
+                <div class="advantage-icon">
+                    <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="6" y="10" width="36" height="28" rx="2" stroke="white" stroke-width="3" fill="none" />
+                        <path d="M 12 28 L 18 22 L 24 26 L 30 18 L 36 22" stroke="white" stroke-width="3" fill="none"
+                            stroke-linecap="round" />
+                    </svg>
+                </div>
+                <h3 class="advantage-title">Зручна аналітика</h3>
+                <p class="advantage-description">Відстежуйте свій прогрес та досягнення в особистому кабінеті</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Courses Section -->
+<section class="popular-courses">
+    <div class="container">
+        <h2 class="section-title">Популярні курси</h2>
+        <div class="courses-grid">
+            {% for course in popular_courses %}
+            <div class="course-card animate-on-scroll">
+                <div class="course-icon" style="background: #E3F2FD;">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="24" r="20" fill="#4A8FD5" />
+                        <path d="M 24 24 L 24 8 A 16 16 0 0 1 38 24 Z" fill="#fff" />
+                        <path d="M 24 24 L 38 24 A 16 16 0 0 1 24 40 Z" fill="#7DB3E8" />
+                    </svg>
+                </div>
+                <h3 class="course-title">{{ course.title }}</h3>
+                <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                <div class="course-footer">
+                    <div class="course-rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span class="rating-text">{{ course.rating }}</span>
+                    </div>
+                    <a href="{% url 'courses' %}" class="btn-secondary">Переглянути</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="course-card animate-on-scroll">
+                <div class="course-icon" style="background: #E3F2FD;">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="24" r="20" fill="#4A8FD5" />
+                        <path d="M 24 24 L 24 8 A 16 16 0 0 1 38 24 Z" fill="#fff" />
+                        <path d="M 24 24 L 38 24 A 16 16 0 0 1 24 40 Z" fill="#7DB3E8" />
+                    </svg>
+                </div>
+                <h3 class="course-title">Основи бюджетування</h3>
+                <p class="course-description">Навчіться правильно планувати свій бюджет та контролювати витрати</p>
+                <div class="course-footer">
+                    <div class="course-rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span class="rating-text">4.9</span>
+                    </div>
+                    <a href="{% url 'courses' %}" class="btn-secondary">Переглянути</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Paid Courses Section -->
+<section class="paid-courses" style="padding: 80px 0; background-color: var(--bg-primary);">
+    <div class="container">
+        <h2 class="section-title">Преміум Курси</h2>
+        <div class="courses-grid">
+            {% for course in premium_courses %}
+            <div class="course-card animate-on-scroll"
+                style="border: 2px solid var(--accent-orange); display: flex; flex-direction: column; height: 100%;">
+                <div style="flex-grow: 1;">
+                    <div class="course-icon" style="background: #FFF3E0;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F57C00" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </div>
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0 15px;">
+
+                <div style="display: flex; justify-content: stretch; gap: 10px;">
+                    <a href="{% url 'course_detail' course.id %}"
+                        style="border: 1px solid #4a8fd5; color: #4a8fd5; flex: 1; text-align: center; border-radius: 8px; padding: 12px 0; background: rgba(74, 143, 213, 0.1); text-decoration: none; font-weight: 600; display: block;">
+                        Детальніше
+                    </a>
+                    <button id="btn-add-{{ course.id }}" onclick="addToCart(event, '{{ course.id }}')"
+                        style="background: #f39c12; color: white; flex: 1; text-align: center; border-radius: 8px; font-weight: bold; border: none; padding: 12px 0; cursor: pointer;">
+                        В кошик
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">Преміум курси скоро з'являться!
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials">
+    <div class="container">
+        <h2 class="section-title">Відгуки наших студентів</h2>
+        <div class="testimonials-grid">
+            {% for testimonial in testimonials %}
+            <div class="testimonial-card animate-on-scroll">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">{{ testimonial.user_name|slice:":2"|upper }}</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">{{ testimonial.user_name }}</div>
+                        <div class="testimonial-stars">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= testimonial.rating %}⭐{% endif %} {% endfor %} </div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">"{{ testimonial.text }}"</p>
+                </div>
+                {% empty %}
+                <div class="testimonial-card animate-on-scroll">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">ОМ</div>
+                        <div class="testimonial-info">
+                            <div class="testimonial-name">Олена Мельник</div>
+                            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">
+                        "Завдяки FinSmart я нарешті навчилася правильно планувати свій бюджет. Курси дуже зрозумілі та
+                        практичні. Рекомендую всім!"
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+</section>
+{% endblock %}

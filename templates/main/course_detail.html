@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - FinSmart{% endblock %}
+
+{% block content %}
+<!-- Course Hero Section -->
+<section class="course-hero" style="padding: 100px 0; background-color: var(--bg-secondary);">
+    <div class="container">
+        <div class="course-hero-content"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
+            <div class="course-hero-left">
+                <div class="rating-badge"
+                    style="display: inline-flex; align-items: center; gap: 5px; background: rgba(255, 179, 0, 0.1); padding: 5px 10px; border-radius: 20px; color: #F57C00; margin-bottom: 20px;">
+                    <span style="font-size: 14px;">★</span>
+                    <span style="font-weight: 600;">{{ course.rating }} Рейтинг курсу</span>
+                </div>
+                <!-- Using clean tags for variables -->
+                <h1 class="course-title-large" style="font-size: 42px; font-weight: bold;">{{ course.title }}</h1>
+                <p class="course-description" style="font-size: 18px; color: var(--text-muted); margin-bottom: 30px;">
+                    {{ course.description }}
+                </p>
+
+                <div class="course-meta" style="display: flex; gap: 20px; margin-bottom: 40px;">
+                    <div class="meta-item" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="icon-box"
+                            style="width: 40px; height: 40px; background: #E3F2FD; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A8FD5"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <span style="display: block; font-size: 12px; color: var(--text-muted);">Тривалість</span>
+                            <span style="font-weight: 600;">{{ course.duration|default:"4 тижні" }}</span>
+                        </div>
+                    </div>
+                    <div class="meta-item" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="icon-box"
+                            style="width: 40px; height: 40px; background: #E8F5E9; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#43A047"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <span style="display: block; font-size: 12px; color: var(--text-muted);">Рівень</span>
+                            <span style="font-weight: 600;">Початковий</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-price-action" style="display: flex; align-items: center; gap: 20px;">
+                    <div class="price" style="font-size: 32px; font-weight: 800; color: var(--brand-primary);">
+                        {{ course.price }} грн
+                    </div>
+                    <!-- Using user-preferred onclick signature -->
+                    <button id="btn-add-{{ course.id }}" onclick="addToCart(event, '{{ course.id }}')"
+                        class="btn-primary"
+                        style="padding: 15px 40px; font-size: 18px; border-radius: 12px; box-shadow: 0 10px 20px rgba(74, 143, 213, 0.2); cursor: pointer;">
+                        Придбати курс
+                    </button>
+                </div>
+            </div>
+
+            <div class="course-hero-right" style="position: relative;">
+                <div class="course-image-wrapper"
+                    style="border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                    <img src="{% static 'img/image 10.png' %}" alt="{{ course.title }}"
+                        style="width: 100%; height: auto; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What you'll learn -->
+<section class="course-learn" style="padding: 80px 0;">
+    <div class="container">
+        <h2 class="section-title">Чого ви навчитеся</h2>
+        <div class="learn-grid"
+            style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 40px;">
+            <div class="learn-item"
+                style="display: flex; gap: 15px; padding: 20px; background: var(--bg-secondary); border-radius: 12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="learn-text">Ефективно керувати особистими фінансами та планувати бюджет</span>
+            </div>
+            <div class="learn-item"
+                style="display: flex; gap: 15px; padding: 20px; background: var(--bg-secondary); border-radius: 12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="learn-text">Розуміти принципи інвестування та створення пасивного доходу</span>
+            </div>
+            <div class="learn-item"
+                style="display: flex; gap: 15px; padding: 20px; background: var(--bg-secondary); border-radius: 12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="learn-text">Уникати типових фінансових пасток та боргів</span>
+            </div>
+            <div class="learn-item"
+                style="display: flex; gap: 15px; padding: 20px; background: var(--bg-secondary); border-radius: 12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="learn-text">Створити чіткий план досягнення фінансових цілей</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Curriculum -->
+<section class="course-curriculum" style="padding: 80px 0; background-color: var(--bg-secondary);">
+    <div class="container">
+        <h2 class="section-title">Програма курсу</h2>
+        <div class="modules-list" style="max-width: 800px; margin: 40px auto 0;">
+            <div class="module-item"
+                style="background: var(--bg-primary); padding: 25px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <h3 style="font-size: 18px; margin-bottom: 10px; color: var(--brand-primary);">Модуль 1: Основи</h3>
+                <p style="color: var(--text-muted);">Введення у тему, основні терміни та поняття. Аналіз поточної
+                    фінансової ситуації.</p>
+            </div>
+            <div class="module-item"
+                style="background: var(--bg-primary); padding: 25px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <h3 style="font-size: 18px; margin-bottom: 10px; color: var(--brand-primary);">Модуль 2: Інструменти
+                </h3>
+                <p style="color: var(--text-muted);">Огляд фінансових інструментів. Банківські продукти, депозити,
+                    картки.</p>
+            </div>
+            <div class="module-item"
+                style="background: var(--bg-primary); padding: 25px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <h3 style="font-size: 18px; margin-bottom: 10px; color: var(--brand-primary);">Модуль 3: Стратегія</h3>
+                <p style="color: var(--text-muted);">Розробка довгострокової стратегії. Пенсійне планування та
+                    страхування.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Target Audience -->
+<section class="course-audience" style="padding: 80px 0;">
+    <div class="container">
+        <h2 class="section-title">Для кого цей курс</h2>
+        <div class="audience-grid"
+            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px;">
+            <div class="audience-card"
+                style="text-align: center; padding: 30px; background: var(--bg-secondary); border-radius: 16px;">
+                <div class="icon" style="font-size: 40px; margin-bottom: 20px;">🎓</div>
+                <h3 style="margin-bottom: 10px;">Для початківців</h3>
+                <p style="color: var(--text-muted);">Хто тільки починає цікавитися фінансами</p>
+            </div>
+            <div class="audience-card"
+                style="text-align: center; padding: 30px; background: var(--bg-secondary); border-radius: 16px;">
+                <div class="icon" style="font-size: 40px; margin-bottom: 20px;">💼</div>
+                <h3 style="margin-bottom: 10px;">Для працівників</h3>
+                <p style="color: var(--text-muted);">Хто хоче ефективніше керувати зарплатою</p>
+            </div>
+            <div class="audience-card"
+                style="text-align: center; padding: 30px; background: var(--bg-secondary); border-radius: 16px;">
+                <div class="icon" style="font-size: 40px; margin-bottom: 20px;">🏠</div>
+                <h3 style="margin-bottom: 10px;">Для сімей</h3>
+                <p style="color: var(--text-muted);">Хто планує спільний бюджет та великі покупки</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
