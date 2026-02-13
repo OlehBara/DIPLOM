@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Вхід - FinSmart{% endblock %}
+{% block title %}Редагування профілю - FinSmart{% endblock %}
 
 {% block content %}
 <section class="login-section"
@@ -11,53 +11,62 @@
             style="max-width: 550px; width: 100%; margin: 0 auto; background-color: var(--bg-secondary); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color);">
             <div class="text-center" style="text-align: center; margin-bottom: 30px;">
                 <h1 style="font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">
-                    Вхід до FinSmart</h1>
-                <p style="color: var(--text-secondary);">Увійдіть, щоб продовжити навчання</p>
+                    Редагування профілю</h1>
+                <p style="color: var(--text-secondary);">Оновіть свої особисті дані</p>
             </div>
 
-            <form method="post" class="login-form">
+            <form method="post" enctype="multipart/form-data" class="login-form">
                 {% csrf_token %}
 
-                {% if form.errors %}
+                {% if u_form.errors or p_form.errors %}
                 <div
                     style="background-color: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-                    <p style="margin: 0;">Невірний логін або пароль. Спробуйте ще раз.</p>
+                    <p style="margin: 0;">Будь ласка, виправте помилки у формі.</p>
                 </div>
                 {% endif %}
 
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">
-                        Електронна пошта або Логін
+                        Логін (Username)
                     </label>
                     <div style="background: var(--bg-primary); border-radius: 10px; overflow: hidden;">
-                        {{ form.username }}
+                        {{ u_form.username }}
                     </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">
-                        Пароль
+                        Електронна пошта
                     </label>
                     <div style="background: var(--bg-primary); border-radius: 10px; overflow: hidden;">
-                        {{ form.password }}
+                        {{ u_form.email }}
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">
+                        Фото профілю
+                    </label>
+                    <div style="background: var(--bg-primary); border-radius: 10px; overflow: hidden; padding: 10px;">
+                        {{ p_form.image }}
                     </div>
                 </div>
 
                 <button type="submit" class="btn-primary"
-                    style="width: 100%; border: none; cursor: pointer; margin-top: 15px; padding: 12px; background-color: #ffa048;">Увійти</button>
-            </form>
+                    style="width: 100%; border: none; cursor: pointer; margin-top: 15px; padding: 12px; background: var(--brand-primary); color: white; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">Зберегти
+                    зміни</button>
 
-            <div style="text-align: center; margin-top: 25px;">
-                <p style="color: var(--text-secondary);">Ще не маєте акаунту? <a href="{% url 'register' %}"
-                        style="color: var(--brand-primary); font-weight: 600; text-decoration: none;">Зареєструватися</a>
-                </p>
-            </div>
+                <a href="{% url 'profile' %}" class="btn-secondary"
+                    style="display: block; text-align: center; margin-top: 15px; color: var(--text-secondary); text-decoration: none; font-size: 14px;">Скасувати</a>
+            </form>
         </div>
     </div>
 </section>
 
 <style>
-    .login-form input {
+    .login-form input[type="text"],
+    .login-form input[type="email"],
+    .login-form input[type="password"] {
         width: 100%;
         padding: 12px 16px;
         border: 1px solid var(--border-color);
@@ -76,7 +85,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const inputs = document.querySelectorAll('.login-form input');
+        const inputs = document.querySelectorAll('.login-form input:not([type="file"]):not([type="checkbox"]):not([type="radio"])');
         inputs.forEach(input => {
             input.style.width = '100%';
             input.style.backgroundColor = 'var(--bg-primary)';

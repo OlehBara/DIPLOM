@@ -10,7 +10,7 @@ from django.db import models
 import json
 from django.contrib.auth import login
 # from django.contrib.auth.forms import UserCreationForm # Replaced by custom form
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .models import Course, Review, ContactMessage, CartItem
 
 
@@ -42,6 +42,30 @@ def profile_view(request):
         'user_courses': user_courses, 
     }
     return render(request, 'main/profile.html', context)
+
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST,
+                                   request.FILES,
+                                   instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, 'Ваш акаунт оновлено!')
+            return redirect('profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form
+    }
+
+    return render(request, 'main/edit_profile.html', context)
 
 
 
