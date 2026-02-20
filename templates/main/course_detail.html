@@ -15,8 +15,17 @@
                     <span style="font-size: 14px;">★</span>
                     <span style="font-weight: 600;">{{ course.rating }} Рейтинг курсу</span>
                 </div>
-                <!-- Using clean tags for variables -->
                 <h1 class="course-title-large" style="font-size: 42px; font-weight: bold;">{{ course.title }}</h1>
+
+                {% if user.is_staff %}
+                <div class="admin-course-actions"
+                    style="display: flex; gap: 12px; margin-bottom: 16px; align-items: center;">
+                    <span style="font-size: 13px; color: #ffcc00; font-weight: 700; opacity: 0.85;">👑 Режим
+                        адміна:</span>
+                    <a href="{% url 'edit_course' course.id %}" class="btn-admin-edit">✏️ Редагувати</a>
+                    <a href="{% url 'delete_course' course.id %}" class="btn-admin-delete">🗑️ Видалити</a>
+                </div>
+                {% endif %}
                 <p class="course-description" style="font-size: 18px; color: var(--text-muted); margin-bottom: 30px;">
                     {{ course.description }}
                 </p>
@@ -52,18 +61,91 @@
                     </div>
                 </div>
 
+                <!-- ── Cart Button ── -->
                 <div class="course-price-action" style="display: flex; align-items: center; gap: 20px;">
                     <div class="price" style="font-size: 32px; font-weight: 800; color: var(--brand-primary);">
                         {{ course.price }} грн
                     </div>
-                    <!-- Using user-preferred onclick signature -->
-                    <button id="btn-add-{{ course.id }}" onclick="addToCart(event, '{{ course.id }}')"
-                        class="btn-primary"
-                        style="padding: 15px 40px; font-size: 18px; border-radius: 12px; box-shadow: 0 10px 20px rgba(74, 143, 213, 0.2); cursor: pointer;">
-                        Придбати курс
+                    {% if in_cart %}
+                    <button class="btn-in-cart" disabled>✓ Додано</button>
+                    {% else %}
+                    <button id="btn-cart-{{ course.id }}" class="btn-primary" style="padding: 15px 40px; font-size: 18px; border-radius: 12px;
+                               box-shadow: 0 10px 20px rgba(74,143,213,0.2); cursor: pointer;">
+                        В кошик
                     </button>
+                    {% endif %}
                 </div>
-            </div>
+
+                <style>
+                    .btn-in-cart {
+                        padding: 15px 40px;
+                        font-size: 18px;
+                        border-radius: 12px;
+                        background: #e2f0fb;
+                        color: #2c5282;
+                        border: 2px solid #4a8fd5;
+                        font-weight: 700;
+                        cursor: default;
+                        opacity: 0.9;
+                    }
+
+                    [data-theme="dark"] .btn-in-cart {
+                        background: rgba(74, 143, 213, 0.15);
+                        color: #90cdf4;
+                        border-color: #4a8fd5;
+                    }
+                </style>
+
+                <script>
+                    (function () {
+                        const btn = document.getElementById('btn-cart-{{ course.id }}');
+                        if (!btn) return; // вже в кошику — кнопки немає
+
+                        btn.addEventListener('click', function () {
+                            btn.disabled = true;
+                            btn.textContent = 'Додаємо...';
+
+                            const csrfToken = document.cookie.split('; ')
+                                .find(r => r.startsWith('csrftoken='))
+                                ?.split('=')[1] || '';
+
+                            fetch("{% url 'add_to_cart' course.id %}", {
+                                method: 'POST',
+                                headers: { 'X-CSRFToken': csrfToken },
+                                credentials: 'same-origin',
+                            })
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        btn.textContent = '✓ Додано';
+                                        btn.className = 'btn-in-cart';
+                                        btn.removeAttribute('style');
+
+                                        // Оновлюємо лічильник кошика в шапці
+                                        const badge = document.getElementById('cartBadge');
+                                        if (badge && data.cart_count !== undefined) {
+                                            badge.textContent = data.cart_count;
+                                            badge.classList.remove('d-none');
+                                        }
+
+                                        // Переходимо до кошика через 600 мс
+                                        setTimeout(() => {
+                                            window.location.href = "{% url 'cart_detail' %}";
+                                        }, 600);
+                                    } else {
+                                        btn.disabled = false;
+                                        btn.textContent = 'В кошик';
+                                    }
+                                })
+                                .catch(() => {
+                                    btn.disabled = false;
+                                    btn.textContent = 'В кошик';
+                                });
+                        });
+                    })();
+                </script>
+
+            </div><!-- /.course-hero-left -->
 
             <div class="course-hero-right" style="position: relative;">
                 <div class="course-image-wrapper"

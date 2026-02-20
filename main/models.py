@@ -78,21 +78,24 @@ class Review(models.Model):
 
 
 class ContactMessage(models.Model):
-    name = models.CharField(max_length=100, null=False)
-    email = models.EmailField(max_length=254, null=False)
-    message = models.TextField(null=False)
-    is_read = models.BooleanField(null=False, default=False)
+    sender = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='contact_messages'
+    )
+    name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=254)
+    subject = models.CharField(max_length=200, blank=True, default='')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
-        db_table = 'ContactMessage'
-        indexes = [
-            models.Index(fields=['created_at'], name='idx_contact_created_at'),
-        ]
+        managed = True
+        db_table = 'main_contactmessage'
+        ordering = ['-created_at']
 
     def __str__(self):
-        return self.name
+        return f"{self.name} — {self.subject or 'без теми'}"
 
 
 class Profile(models.Model):
@@ -103,17 +106,33 @@ class Profile(models.Model):
         return f'{self.user.username} Profile'
 
 
+class Enrollment(models.Model):
+    """Зберігає придбані курси користувача"""
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'main_enrollment'
+        unique_together = ('user', 'course')  # один запис на пару
+
+    def __str__(self):
+        return f'{self.user.username} → {self.course.title}'
+
+
 # Signals to create Profile automatically
 from django.db.models.signals import post_save
+from django.contrib.auth.models import User
 from django.dispatch import receiver
 
 
-@receiver(post_save, sender='auth.User')
+@receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
 
-@receiver(post_save, sender='auth.User')
+@receiver(post_save, sender=User)
 def save_profile(sender, instance, **kwargs):
     instance.profile.save()

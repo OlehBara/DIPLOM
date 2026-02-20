@@ -11,7 +11,7 @@ import json
 from django.contrib.auth import login
 # from django.contrib.auth.forms import UserCreationForm # Replaced by custom form
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
-from .models import Course, Review, ContactMessage, CartItem
+from .models import Course, Review, ContactMessage, CartItem, Enrollment
 
 
 def register(request):
@@ -35,11 +35,17 @@ def register(request):
 def profile_view(request):
     """Особистий кабінет користувача"""
     user_courses = CartItem.objects.filter(user=request.user).select_related('course')
-    
+
+    # Для адміна — список усіх повідомлень із форми зворотного зв'язку
+    contact_messages = None
+    if request.user.is_staff:
+        contact_messages = ContactMessage.objects.all().select_related('sender').order_by('-created_at')
+
     context = {
         'display_name': request.user.username,
         'display_email': request.user.email,
-        'user_courses': user_courses, 
+        'user_courses': user_courses,
+        'contact_messages': contact_messages,
     }
     return render(request, 'main/profile.html', context)
 
@@ -124,34 +130,50 @@ def courses(request):
 def course_detail(request, course_id):
     """Сторінка детального опису курсу"""
     course = get_object_or_404(Course, id=course_id)
-    print(f"DEBUG DATA: Found course {course.title} with ID {course.id}")
-    
+
     # Рекомендації: інші курси з тієї ж категорії
     related_courses = Course.objects.filter(
-        category=course.category, 
+        category=course.category,
         is_active=True
     ).exclude(id=course.id)[:3]
-    
-    # Explicitly creating context with 'course' key
+
+    # Перевірка: чи вже придбав користувач цей курс
+    is_enrolled = False
+    if request.user.is_authenticated:
+        is_enrolled = Enrollment.objects.filter(user=request.user, course=course).exists()
+
+    # Перевірка: чи курс вже є в кошику
+    in_cart = False
+    if request.user.is_authenticated:
+        in_cart = CartItem.objects.filter(user=request.user, course=course).exists()
+    else:
+        session_key = request.session.session_key
+        if session_key:
+            in_cart = CartItem.objects.filter(session_key=session_key, course=course).exists()
+
     context = {
         'course': course,
         'related_courses': related_courses,
+        'is_enrolled': is_enrolled,
+        'in_cart': in_cart,
     }
-    return render(request, 'main/course_detail.html', {'course': course})
+    return render(request, 'main/course_detail.html', context)
 
 
 def about(request):
     """Сторінка 'Про нас'"""
-    # Статистика
     stats = {
         'total_courses': Course.objects.filter(is_active=True).count(),
         'total_reviews': Review.objects.filter(is_approved=True).count(),
-        'satisfaction_rate': 98,  # Можна зробити динамічним
+        'satisfaction_rate': 98,
     }
-    
-    context = {
-        'stats': stats,
-    }
+
+    context = {'stats': stats}
+
+    # Секретна інбокс-секція лише для адміна 'mysite'
+    if request.user.is_authenticated and request.user.username == 'mysite':
+        context['admin_messages'] = ContactMessage.objects.all().order_by('-created_at')
+
     return render(request, 'main/about.html', context)
 
 
@@ -182,23 +204,58 @@ def contact(request):
 def contact_ajax(request):
     """AJAX обробка контактної форми"""
     try:
-        data = json.loads(request.body)
-        name = data.get('name')
-        email = data.get('email')
-        message = data.get('message')
-        
+        # Try JSON first (fetch with Content-Type: application/json)
+        content_type = request.content_type or ''
+        if 'application/json' in content_type:
+            data = json.loads(request.body)
+            name    = data.get('name', '').strip()
+            email   = data.get('email', '').strip()
+            subject = data.get('subject', '').strip()
+            message = data.get('message', '').strip()
+        else:
+            # Fallback: FormData / urlencoded
+            name    = request.POST.get('name', '').strip()
+            email   = request.POST.get('email', '').strip()
+            subject = request.POST.get('subject', '').strip()
+            message = request.POST.get('message', '').strip()
+
+        print(f"[contact_ajax] ct={content_type!r} name={name!r} email={email!r} msg={message!r}")
+
         if name and email and message:
             ContactMessage.objects.create(
+                sender=request.user if request.user.is_authenticated else None,
                 name=name,
                 email=email,
-                message=message
+                subject=subject,
+                message=message,
             )
             return JsonResponse({'success': True, 'message': 'Дякуємо, ваше повідомлення відправлено!'})
         else:
-            return JsonResponse({'success': False, 'message': 'Будь ласка, заповніть всі поля.'})
-    
+            return JsonResponse({'success': False, 'message': 'Будь ласка, заповніть усі поля.'})
+
     except Exception as e:
-        return JsonResponse({'success': False, 'message': 'Сталася помилка. Спробуйте ще раз.'})
+        import traceback
+        print("contact_ajax error:", traceback.format_exc())
+        return JsonResponse({'success': False, 'message': f'Помилка: {str(e)}'})
+
+
+@login_required
+@require_http_methods(["POST"])
+def enroll_course(request, course_id):
+    """AJAX: записати користувача на курс (постійний стан)"""
+    try:
+        course = get_object_or_404(Course, id=course_id)
+        enrollment, created = Enrollment.objects.get_or_create(
+            user=request.user,
+            course=course
+        )
+        return JsonResponse({
+            'success': True,
+            'already_enrolled': not created,
+            'message': f'Ви успішно придбали курс "{course.title}"!'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
 @csrf_exempt
@@ -296,3 +353,46 @@ def remove_from_cart(request, item_id):
             
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
+
+# ──────────────────────────────────────────────
+#  ADMIN-ONLY VIEWS
+# ──────────────────────────────────────────────
+from django.contrib.admin.views.decorators import staff_member_required
+from .forms import CourseForm
+
+
+@staff_member_required
+def add_course(request):
+    """Адмін: додати новий курс"""
+    form = CourseForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST' and form.is_valid():
+        course = form.save()
+        messages.success(request, f'Курс "{course.title}" успішно додано!')
+        return redirect('course_detail', course_id=course.id)
+    return render(request, 'main/add_course.html', {'form': form, 'action': 'Додати'})
+
+
+@staff_member_required
+def edit_course(request, course_id):
+    """Адмін: редагувати курс"""
+    course = get_object_or_404(Course, id=course_id)
+    form = CourseForm(request.POST or None, request.FILES or None, instance=course)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, f'Курс "{course.title}" оновлено!')
+        return redirect('course_detail', course_id=course.id)
+    return render(request, 'main/add_course.html', {'form': form, 'course': course, 'action': 'Редагувати'})
+
+
+@staff_member_required
+def delete_course(request, course_id):
+    """Адмін: видалити курс"""
+    course = get_object_or_404(Course, id=course_id)
+    if request.method == 'POST':
+        title = course.title
+        course.delete()
+        messages.success(request, f'Курс "{title}" видалено.')
+        return redirect('courses')
+    return render(request, 'main/delete_course_confirm.html', {'course': course})
+

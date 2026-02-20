@@ -4,115 +4,307 @@
 {% block title %}Реєстрація - FinSmart{% endblock %}
 
 {% block content %}
-<section class="register-section"
-    style="padding: 100px 0; min-height: 80vh; display: flex; align-items: center; background-color: var(--bg-primary);">
-    <div class="container">
-        <!-- Changed max-width to 550px as requested -->
-        <div class="register-card"
-            style="max-width: 550px; width: 100%; margin: 0 auto; background-color: var(--bg-secondary); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color);">
-            <div class="text-center" style="text-align: center; margin-bottom: 30px;">
-                <h1 style="font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">
-                    Реєстрація</h1>
-                <p style="color: var(--text-secondary);">Створіть акаунт для доступу до курсів</p>
-            </div>
+<div class="auth-page" style="background-image: url('{% static 'img/blue.png' %}');">
+    <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <svg width="44" height="44" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="20" fill="#4a8fd5" fill-opacity="0.3" />
+                <rect x="13" y="18" width="3" height="12" rx="1.5" fill="white" />
+                <rect x="18.5" y="13" width="3" height="17" rx="1.5" fill="white" />
+                <rect x="24" y="15" width="3" height="15" rx="1.5" fill="white" />
+            </svg>
+            <span class="auth-logo-text">FinSmart</span>
+        </div>
 
-            <form method="post" class="register-form">
-                {% csrf_token %}
+        <h2 class="auth-title">Реєстрація</h2>
 
-                {% for field in form %}
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <!-- Custom Labels -->
-                    {% if forloop.counter == 1 %}
-                    <label
-                        style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">Логін
-                        (Username)</label>
-                    {% elif forloop.counter == 2 %}
-                    <label
-                        style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">Електронна
-                        пошта</label>
-                    {% elif forloop.counter == 3 %}
-                    <label
-                        style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">Пароль</label>
-                    {% elif forloop.counter == 4 %}
-                    <label
-                        style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">Підтвердіть
-                        пароль</label>
+        <form method="post" class="material-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="input-group">
+                {{ field }}
+                <label for="{{ field.id_for_label }}">
+                    {% if forloop.counter == 1 %}Логін
+                    {% elif forloop.counter == 2 %}Електронна пошта
+                    {% elif forloop.counter == 3 %}Пароль
+                    {% elif forloop.counter == 4 %}Підтвердження паролю
                     {% endif %}
-
-                    <div style="background: var(--bg-primary); border-radius: 10px; overflow: hidden;">
-                        {{ field }}
-                    </div>
-                </div>
-                {% endfor %}
-
-                <button type="submit" class="btn-primary"
-                    style="width: 100%; border: none; cursor: pointer; margin-top: 15px; padding: 12px; background-color: #ffa048;">Зареєструватися</button>
-            </form>
-
-            <div style="text-align: center; margin-top: 25px;">
-                <p style="color: var(--text-secondary);">Вже маєте акаунт? <a href="{% url 'login' %}"
-                        style="color: var(--brand-primary); font-weight: 600; text-decoration: none;">Увійти</a></p>
+                </label>
+                <div class="input-bar"></div>
             </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-auth">
+                ЗАРЕЄСТРУВАТИСЬ
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </form>
+
+        <div class="auth-divider"><span>або</span></div>
+
+        <button class="btn-google">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4" />
+                <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853" />
+                <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    fill="#FBBC05" />
+                <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    fill="#EA4335" />
+            </svg>
+            Sign in with Google
+        </button>
+
+        <div class="auth-footer">
+            Вже маєте акаунт? <a href="{% url 'login' %}">Увійти</a>
         </div>
     </div>
-</section>
+</div>
 
 <style>
-    .register-form input {
+    /* ── Full-page background ── */
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 40px 20px;
+        margin-top: -80px;
+        padding-top: 120px;
+    }
+
+    /* ── Glassmorphism Card ── */
+    .auth-card {
         width: 100%;
-        padding: 12px 16px;
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
+        max-width: 460px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 20px;
+        padding: 48px 40px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Dark theme: slightly more opaque */
+    [data-theme="dark"] .auth-card {
+        background: rgba(15, 20, 30, 0.55);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ── Logo ── */
+    .auth-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .auth-logo-text {
+        font-size: 22px;
+        font-weight: 700;
+        color: white;
+        letter-spacing: 0.5px;
+    }
+
+    /* ── Title ── */
+    .auth-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 32px;
+        letter-spacing: -0.3px;
+    }
+
+    /* ── Material Inputs ── */
+    .material-form .input-group {
+        position: relative;
+        margin-bottom: 28px;
+    }
+
+    .material-form input {
+        width: 100%;
+        padding: 10px 0;
         font-size: 16px;
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        box-sizing: border-box;
-    }
-
-    .register-form input:focus {
+        color: white;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.35);
         outline: none;
-        border-color: var(--brand-primary);
+        background: transparent;
+        transition: all 0.3s ease;
     }
 
-    /* Ensure explicit text color for labels in dark/light mode via variable, 
-       but user asked for 'color: white' style inline which implies dark background. 
-       However, the card uses var(--bg-secondary). 
-       I used var(--text-primary) to map correctly to theme. 
-       If strict compliance to 'color: white' is needed irrespective of theme, 
-       it might contrast poorly on light mode unless the card is always dark.
-       Given 'FinSmart' design seems to have light/dark modes, var is safer.
-       But user requested: <label style="color: white; ...">
-       I will respect user request but maybe make it specific to the request context 
-       or assume they are testing in dark mode. 
-       Let's stick to var(--text-primary) which is safer for the overall app logic 
-       unless the card is explicitly dark. 
-       Wait, user said "style='color: white;'" explicitly. 
-       If I use that on light mode it will be invisible. 
-       I will use var(--text-primary) effectively, but if the user insists on white, 
-       maybe the registration card is intended to be dark always? 
-       No, base.html has theme toggle. 
-       I'll use var(--text-primary) but ensure it looks good. 
-       Actually, looking at previous user prompt, they said "Використовуй dark дизайн: ... Поля введення повинні мати темний фон". 
-       So maybe the reg page IS effectively dark-only or the user is focused on dark mode?
-       I'll stick to variables to be safe but match the layout. 
-       Let's use the USER'S requested labels text exactly.
-       User requested: <label style="color: white; display: block; margin-bottom: 5px;">
-       I will use that style but add a comment or fallback if it breaks light mode, 
-       or just follow instructions blindly if that's what they want. 
-       I'll follow the instruction but change color to var(--text-primary) to avoid breaking the site in light mode,
-       as I am an expert agent. 
-       Actually, I'll use var(--text-primary) but if the user complains I'll switch.
-       It's safer.
-    */
+    .material-form input::placeholder {
+        color: transparent;
+    }
+
+    .material-form label {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.6);
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .material-form input:focus~label,
+    .material-form input:not(:placeholder-shown)~label {
+        top: -14px;
+        font-size: 11px;
+        color: #4a8fd5;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .input-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #4a8fd5;
+        transition: width 0.3s ease;
+    }
+
+    .material-form input:focus~.input-bar {
+        width: 100%;
+    }
+
+    /* ── Submit Button ── */
+    .btn-auth {
+        width: 100%;
+        padding: 14px;
+        background: #4a8fd5;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    .btn-auth:hover {
+        background: #3a7dbd;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(74, 143, 213, 0.5);
+    }
+
+    /* ── Footer Link ── */
+    .auth-footer {
+        margin-top: 28px;
+        text-align: center;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .auth-footer a {
+        color: #4a8fd5;
+        font-weight: 800;
+        text-decoration: none;
+        position: relative;
+        transition: color 0.2s;
+    }
+
+    .auth-footer a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #4a8fd5;
+        transition: width 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: #7db3e8;
+    }
+
+    .auth-footer a:hover::after {
+        width: 100%;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+        .auth-card {
+            padding: 36px 24px;
+        }
+
+        .auth-title {
+            font-size: 24px;
+        }
+    }
+
+    /* ── Divider ── */
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 20px 0;
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 13px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* ── Google Button ── */
+    .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        backdrop-filter: blur(4px);
+    }
+
+    .btn-google:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+    }
 </style>
+
 <script>
-    // Force inputs to have style as requested if CSS classes miss
     document.addEventListener('DOMContentLoaded', function () {
-        const inputs = document.querySelectorAll('.register-form input');
-        inputs.forEach(input => {
-            input.style.width = '100%';
-            input.style.backgroundColor = 'var(--bg-primary)';
-            input.style.color = 'var(--text-primary)';
+        document.querySelectorAll('.material-form input').forEach(input => {
+            input.setAttribute('placeholder', ' ');
+            input.removeAttribute('style');
         });
     });
 </script>

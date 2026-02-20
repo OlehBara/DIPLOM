@@ -24,3 +24,28 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['image']
+
+
+from .models import Course
+
+class CourseForm(forms.ModelForm):
+    """Форма для створення/редагування курсу (тільки для адміна)"""
+    class Meta:
+        model = Course
+        fields = ['title', 'description', 'price', 'category', 'rating', 'is_active', 'is_premium']
+        labels = {
+            'title': 'Назва курсу',
+            'description': 'Опис',
+            'price': 'Ціна (грн)',
+            'category': 'Категорія',
+            'rating': 'Рейтинг',
+            'is_active': 'Активний',
+            'is_premium': 'Преміум',
+        }
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Назва курсу'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 4, 'placeholder': 'Опис курсу'}),
+            'price': forms.NumberInput(attrs={'class': 'form-input', 'min': '0'}),
+            'category': forms.Select(attrs={'class': 'form-input'}),
+            'rating': forms.NumberInput(attrs={'class': 'form-input', 'min': '0', 'max': '5', 'step': '0.1'}),
+        }

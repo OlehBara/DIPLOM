@@ -44,22 +44,38 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 25px;">
-                    <label style="color: var(--text-primary); display: block; margin-bottom: 5px; font-weight: 600;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 10px; font-weight: 600;">
                         Фото профілю
                     </label>
-                    <div style="background: var(--bg-primary); border-radius: 10px; overflow: hidden; padding: 10px;">
-                        {{ p_form.image }}
+                    <div class="file-input-wrapper" style="text-align: center;">
+                        <!-- Avatar Preview -->
+                        <div id="avatar-preview-wrap"
+                            style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin: 0 auto 14px; border: 3px solid var(--brand-primary); display: flex; align-items: center; justify-content: center;">
+                            {% if user.profile.image and user.profile.image.url != '/media/default.jpg' %}
+                            <img id="avatar-preview" src="{{ user.profile.image.url }}"
+                                style="width:100%; height:100%; object-fit:cover;">
+                            {% else %}
+                            <div id="avatar-letter" class="letter-avatar" style="font-size: 2rem;">{{
+                                user.username|first|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <label for="{{ p_form.image.id_for_label }}" class="custom-file-upload">
+                            <i class="fas fa-camera"></i> Обрати нове фото
+                        </label>
+                        <input type="file" name="{{ p_form.image.name }}" id="{{ p_form.image.id_for_label }}"
+                            accept="image/*" style="display: none;">
                     </div>
                 </div>
-
-                <button type="submit" class="btn-primary"
-                    style="width: 100%; border: none; cursor: pointer; margin-top: 15px; padding: 12px; background: var(--brand-primary); color: white; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">Зберегти
-                    зміни</button>
-
-                <a href="{% url 'profile' %}" class="btn-secondary"
-                    style="display: block; text-align: center; margin-top: 15px; color: var(--text-secondary); text-decoration: none; font-size: 14px;">Скасувати</a>
-            </form>
         </div>
+
+        <button type="submit" class="btn-primary"
+            style="width: 100%; border: none; cursor: pointer; margin-top: 15px; padding: 12px; background: var(--brand-primary); color: white; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">Зберегти
+            всі зміни</button>
+
+        <a href="{% url 'profile' %}" class="btn-secondary"
+            style="display: block; text-align: center; margin-top: 15px; color: var(--text-secondary); text-decoration: none; font-size: 14px;">Скасувати</a>
+        </form>
+    </div>
     </div>
 </section>
 
@@ -81,7 +97,45 @@
         outline: none;
         border-color: var(--brand-primary);
     }
+
+    .custom-file-upload {
+        display: inline-block;
+        padding: 10px 20px;
+        cursor: pointer;
+        background: var(--brand-primary);
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-top: 10px;
+        transition: 0.3s;
+        text-align: center;
+    }
+
+    .custom-file-upload:hover {
+        background: #3a7dbd;
+    }
+
+    /* Hide standard input but keep it functional */
+    input[type="file"] {
+        display: none;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.getElementById('{{ p_form.image.id_for_label }}');
+        if (!fileInput) return;
+        fileInput.addEventListener('change', function () {
+            if (!this.files || !this.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const wrap = document.getElementById('avatar-preview-wrap');
+                wrap.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

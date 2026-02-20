@@ -27,6 +27,23 @@
     --accent-blue: #1e5a8e;
 }
 
+/* Letter Avatar Fallback */
+.letter-avatar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4a8fd5 0%, #2c5282 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    border-radius: 50%;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    line-height: 1;
+}
+
 [data-theme="dark"] {
     --bg-primary: #0f1419;
     --bg-secondary: #1a1f2e;
@@ -1309,4 +1326,88 @@ body {
 /* Utilities */
 .d-none {
     display: none !important;
+}
+
+/* ── Admin Links ── */
+.admin-link {
+    color: #ffcc00 !important;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(255, 204, 0, 0.12);
+    border: 1px solid rgba(255, 204, 0, 0.35);
+    transition: background 0.2s, transform 0.15s;
+    font-size: 14px;
+}
+
+.admin-link:hover {
+    background: rgba(255, 204, 0, 0.22);
+    transform: translateY(-1px);
+}
+
+.admin-action-link {
+    color: #ffffff !important;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4a8fd5 0%, #2c5282 100%);
+    border: none;
+    transition: opacity 0.2s, transform 0.15s;
+    font-size: 14px;
+}
+
+.admin-action-link:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+/* ── Admin Course Buttons (Edit / Delete) ── */
+.btn-admin-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    background: linear-gradient(135deg, #4a8fd5 0%, #2c5282 100%);
+    color: #fff;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-admin-edit:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.btn-admin-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    background: linear-gradient(135deg, #e53e3e 0%, #9b1c1c 100%);
+    color: #fff;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-admin-delete:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
 }

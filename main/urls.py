@@ -16,7 +16,11 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),
     path('course/<int:course_id>/', views.course_detail, name='course_detail'),
+    path('course/<int:course_id>/enroll/', views.enroll_course, name='enroll_course'),
+    path('course/<int:course_id>/edit/', views.edit_course, name='edit_course'),
+    path('course/<int:course_id>/delete/', views.delete_course, name='delete_course'),
     path('add-to-cart/<int:course_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_detail, name='cart_detail'),
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('courses/add/', views.add_course, name='add_course'),
 ]

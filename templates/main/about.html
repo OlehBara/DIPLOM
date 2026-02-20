@@ -19,10 +19,14 @@
     <div class="container">
         <div class="about-text">
             <p>
-                <strong>FinSmart</strong> — це сучасна платформа для навчання фінансової грамотності, яка допомагає тисячам українців приймати правильні фінансові рішення. Наша місія полягає в тому, щоб зробити фінансову освіту доступною для кожного, незалежно від рівня початкових знань.
+                <strong>FinSmart</strong> — це сучасна платформа для навчання фінансової грамотності, яка допомагає
+                тисячам українців приймати правильні фінансові рішення. Наша місія полягає в тому, щоб зробити фінансову
+                освіту доступною для кожного, незалежно від рівня початкових знань.
             </p>
             <p style="margin-top: 20px;">
-                Ми віримо, що фінансова грамотність — це ключ до фінансової свободи та стабільності. Наша команда експертів створює зрозумілі та практичні курси, які допомагають нашим студентам досягати своїх фінансових цілей.
+                Ми віримо, що фінансова грамотність — це ключ до фінансової свободи та стабільності. Наша команда
+                експертів створює зрозумілі та практичні курси, які допомагають нашим студентам досягати своїх
+                фінансових цілей.
             </p>
         </div>
 
@@ -54,32 +58,37 @@
             <div class="advantage-card animate-on-scroll">
                 <div class="advantage-icon">
                     <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M24 4L28 16H40L30 24L34 36L24 28L14 36L18 24L8 16H20L24 4Z" fill="white"/>
+                        <path d="M24 4L28 16H40L30 24L34 36L24 28L14 36L18 24L8 16H20L24 4Z" fill="white" />
                     </svg>
                 </div>
                 <h3 class="advantage-title">Якість</h3>
-                <p class="advantage-description">Ми створюємо тільки найкращі навчальні матеріали, перевірені експертами галузі</p>
+                <p class="advantage-description">Ми створюємо тільки найкращі навчальні матеріали, перевірені експертами
+                    галузі</p>
             </div>
 
             <div class="advantage-card animate-on-scroll">
                 <div class="advantage-icon">
                     <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="24" cy="16" r="8" fill="white"/>
-                        <path d="M12 36C12 28 16 24 24 24C32 24 36 28 36 36" stroke="white" stroke-width="3" fill="none"/>
+                        <circle cx="24" cy="16" r="8" fill="white" />
+                        <path d="M12 36C12 28 16 24 24 24C32 24 36 28 36 36" stroke="white" stroke-width="3"
+                            fill="none" />
                     </svg>
                 </div>
                 <h3 class="advantage-title">Доступність</h3>
-                <p class="advantage-description">Фінансова освіта має бути доступною для кожного, незалежно від статків</p>
+                <p class="advantage-description">Фінансова освіта має бути доступною для кожного, незалежно від статків
+                </p>
             </div>
 
             <div class="advantage-card animate-on-scroll">
                 <div class="advantage-icon">
                     <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 24L20 32L36 16" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <path d="M12 24L20 32L36 16" stroke="white" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round" fill="none" />
                     </svg>
                 </div>
                 <h3 class="advantage-title">Результат</h3>
-                <p class="advantage-description">Ми фокусуємося на реальних результатах та практичному застосуванні знань</p>
+                <p class="advantage-description">Ми фокусуємося на реальних результатах та практичному застосуванні
+                    знань</p>
             </div>
         </div>
     </div>
@@ -116,5 +125,62 @@
         </div>
     </div>
 </section>
-{% endblock %}
 
+{% if user.username == 'mysite' %}
+<!-- Admin-only inbox — visible ONLY to 'mysite' -->
+<section style="padding: 40px 0 60px;">
+    <div class="container">
+        <div style="background: var(--bg-card); border-radius: 20px; padding: 36px;
+                    box-shadow: var(--shadow-md); border: 1px solid rgba(255,204,0,0.3);">
+            <h2 style="font-size: 22px; font-weight: 800; color: var(--text-primary);
+                       margin-bottom: 28px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 26px;">📥</span>
+                Повідомлення для адміністратора
+                <span style="font-size: 14px; font-weight: 700; background: #ffcc00;
+                             color: #1a1a1a; padding: 3px 10px; border-radius: 20px; margin-left: 4px;">
+                    {{ admin_messages|length }}
+                </span>
+            </h2>
+
+            {% for msg in admin_messages %}
+            <div style="display: flex; gap: 16px; padding: 18px 8px; border-bottom: 1px solid var(--border-color);">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+                            background: linear-gradient(135deg, var(--brand-secondary), var(--brand-primary));
+                            display: flex; align-items: center; justify-content: center;
+                            font-size: 18px; font-weight: 800; color: white;">
+                    {% if msg.sender %}{{ msg.sender.username|first|upper }}{% else %}Г{% endif %}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+                        <strong style="font-size: 15px; color: var(--text-primary);">
+                            {% if msg.sender %}{{ msg.sender.username }}{% else %}Гість ({{ msg.name }}){% endif %}
+                        </strong>
+                        <span style="font-size: 13px; color: var(--text-muted);">{{ msg.email }}</span>
+                        {% if not msg.is_read %}
+                        <span
+                            style="font-size: 11px; font-weight: 700; background: #ffcc00; color: #1a1a1a; padding: 2px 8px; border-radius: 10px;">Нове</span>
+                        {% endif %}
+                        <span style="font-size: 12px; color: var(--text-muted); margin-left: auto;">{{
+                            msg.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    {% if msg.subject %}
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">{{
+                        msg.subject }}</p>
+                    {% endif %}
+                    <p
+                        style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; word-break: break-word;">
+                        {{ msg.message }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.4;">📭</div>
+                <p>Повідомлень поки немає</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
