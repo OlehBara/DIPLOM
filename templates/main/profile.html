@@ -26,32 +26,491 @@
             <!-- Left Column -->
             <div class="profile-main-content" style="display: flex; flex-direction: column; gap: 30px;">
 
-                <!-- Investment Chart Section -->
-                <div class="card"
+                <!-- Wealth Forecast / Compound Interest Calculator -->
+                <div class="card wf-card"
                     style="background: var(--bg-card); border-radius: 20px; padding: 30px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
-                    <h2
-                        style="font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            style="color: var(--brand-primary);">
-                            <line x1="12" y1="20" x2="12" y2="10"></line>
-                            <line x1="18" y1="20" x2="18" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="16"></line>
-                        </svg>
-                        Мій прогрес
-                    </h2>
-                    <div id="investment-chart-container"
-                        style="height: 300px; background: rgba(74, 143, 213, 0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px dashed rgba(74, 143, 213, 0.2);">
-                        <div style="text-align: center; color: var(--text-muted);">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="margin-bottom: 15px; opacity: 0.5;">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                            </svg>
-                            <p style="font-size: 16px; font-weight: 500;">Тут буде ваш графік складних відсотків</p>
+
+                    <!-- Card Header: 2-column layout -->
+                    <div class="wf-header">
+                        <!-- Left: Title -->
+                        <div class="wf-title-block">
+                            <div class="wf-title-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                    <polyline points="17 6 23 6 23 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="wf-title">Wealth Forecast</h2>
+                                <p class="wf-subtitle">8% річних · до 67 років</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: Sliders -->
+                        <div class="wf-sliders">
+                            <div class="wf-slider-group">
+                                <div class="wf-slider-label-row">
+                                    <label class="wf-slider-label" for="wf-age-slider">Поточний вік</label>
+                                    <span class="wf-slider-val" id="wf-age-display">28</span>
+                                </div>
+                                <input class="wf-slider" type="range" id="wf-age-slider" min="18" max="60" value="28">
+                                <div class="wf-slider-range-row"><span>18</span><span>60</span></div>
+                            </div>
+                            <div class="wf-slider-group">
+                                <div class="wf-slider-label-row">
+                                    <label class="wf-slider-label" for="wf-contrib-slider">Внесок / міс.</label>
+                                    <span class="wf-slider-val" id="wf-contrib-display">$500</span>
+                                </div>
+                                <input class="wf-slider" type="range" id="wf-contrib-slider" min="100" max="10000"
+                                    step="50" value="500">
+                                <div class="wf-slider-range-row"><span>$100</span><span>$10k</span></div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Chart -->
+                    <div class="wf-chart-wrap">
+                        <canvas id="wf-chart"></canvas>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="wf-legend">
+                        <span class="wf-legend-item wf-legend-invest">
+                            <span class="wf-legend-dot"></span>Інвестиції (8%)
+                        </span>
+                        <span class="wf-legend-item wf-legend-cash">
+                            <span class="wf-legend-dot wf-legend-dot--cash"></span>Готівка (0%)
+                        </span>
+                    </div>
+
+                    <!-- Total Balance -->
+                    <div class="wf-total-block">
+                        <span class="wf-total-label">Прогнозований баланс на пенсії</span>
+                        <span class="wf-total-value" id="wf-total-balance">$0</span>
+                    </div>
                 </div>
+
+                <!-- ── Wealth Forecast Styles ── -->
+                <style>
+                    .wf-card {
+                        overflow: hidden;
+                    }
+
+                    /* Header */
+                    .wf-header {
+                        display: grid;
+                        grid-template-columns: auto 1fr;
+                        gap: 28px;
+                        align-items: start;
+                        margin-bottom: 24px;
+                    }
+
+                    @media (max-width: 700px) {
+                        .wf-header {
+                            grid-template-columns: 1fr;
+                            gap: 20px;
+                        }
+                    }
+
+                    .wf-title-block {
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                    }
+
+                    .wf-title-icon {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 14px;
+                        background: linear-gradient(135deg, var(--brand-primary, #4a8fd5) 0%, var(--brand-secondary, #2563eb) 100%);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #fff;
+                        flex-shrink: 0;
+                        box-shadow: 0 6px 20px rgba(74, 143, 213, .35);
+                    }
+
+                    .wf-title {
+                        font-size: 20px;
+                        font-weight: 800;
+                        color: var(--text-primary, #f1f5f9);
+                        margin: 0 0 4px;
+                        line-height: 1.2;
+                    }
+
+                    .wf-subtitle {
+                        font-size: 12px;
+                        color: var(--text-muted, #64748b);
+                        margin: 0;
+                        font-weight: 500;
+                        letter-spacing: .5px;
+                        text-transform: uppercase;
+                    }
+
+                    /* Sliders */
+                    .wf-sliders {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 18px;
+                    }
+
+                    @media (max-width: 520px) {
+                        .wf-sliders {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+
+                    .wf-slider-group {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 6px;
+                    }
+
+                    .wf-slider-label-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: baseline;
+                    }
+
+                    .wf-slider-label {
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: var(--text-muted, #64748b);
+                        text-transform: uppercase;
+                        letter-spacing: .5px;
+                    }
+
+                    .wf-slider-val {
+                        font-size: 16px;
+                        font-weight: 800;
+                        color: var(--brand-primary, #4a8fd5);
+                    }
+
+                    .wf-slider {
+                        -webkit-appearance: none;
+                        appearance: none;
+                        width: 100%;
+                        height: 6px;
+                        border-radius: 999px;
+                        background: var(--border-color, rgba(255, 255, 255, .1));
+                        outline: none;
+                        cursor: pointer;
+                        transition: background .2s;
+                    }
+
+                    .wf-slider::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        background: var(--brand-primary, #4a8fd5);
+                        box-shadow: 0 0 0 4px rgba(74, 143, 213, .2);
+                        cursor: pointer;
+                        transition: box-shadow .2s, transform .15s;
+                    }
+
+                    .wf-slider::-moz-range-thumb {
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        border: none;
+                        background: var(--brand-primary, #4a8fd5);
+                        box-shadow: 0 0 0 4px rgba(74, 143, 213, .2);
+                        cursor: pointer;
+                    }
+
+                    .wf-slider:hover::-webkit-slider-thumb {
+                        box-shadow: 0 0 0 7px rgba(74, 143, 213, .22);
+                        transform: scale(1.1);
+                    }
+
+                    .wf-slider-range-row {
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 10px;
+                        color: var(--text-muted, #64748b);
+                    }
+
+                    /* Chart */
+                    .wf-chart-wrap {
+                        position: relative;
+                        height: 280px;
+                        margin-bottom: 16px;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        background: rgba(74, 143, 213, .04);
+                    }
+
+                    .wf-chart-wrap canvas {
+                        display: block;
+                    }
+
+                    /* Legend */
+                    .wf-legend {
+                        display: flex;
+                        gap: 24px;
+                        align-items: center;
+                        margin-bottom: 20px;
+                        justify-content: center;
+                    }
+
+                    .wf-legend-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: var(--text-muted, #94a3b8);
+                    }
+
+                    .wf-legend-dot {
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 3px;
+                        background: var(--brand-primary, #4a8fd5);
+                        flex-shrink: 0;
+                    }
+
+                    .wf-legend-dot--cash {
+                        background: transparent;
+                        border: 2px dashed var(--text-muted, #64748b);
+                    }
+
+                    /* Total Balance */
+                    .wf-total-block {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        padding: 20px 24px;
+                        background: linear-gradient(135deg, rgba(74, 143, 213, .08) 0%, rgba(37, 99, 235, .06) 100%);
+                        border-radius: 16px;
+                        border: 1px solid rgba(74, 143, 213, .18);
+                    }
+
+                    .wf-total-label {
+                        font-size: 12px;
+                        font-weight: 600;
+                        letter-spacing: .6px;
+                        text-transform: uppercase;
+                        color: var(--text-muted, #64748b);
+                        margin-bottom: 8px;
+                    }
+
+                    .wf-total-value {
+                        font-size: 38px;
+                        font-weight: 900;
+                        background: linear-gradient(90deg, var(--brand-primary, #4a8fd5), #38bdf8);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        line-height: 1;
+                        letter-spacing: -1px;
+                    }
+
+                    @media (max-width: 480px) {
+                        .wf-total-value {
+                            font-size: 28px;
+                        }
+                    }
+                </style>
+
+                <!-- ── Wealth Forecast Script ── -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+                <script>
+                    (function () {
+                        'use strict';
+
+                        const RETIREMENT_AGE = 67;
+                        const ANNUAL_RATE = 0.08;
+
+                        // ── DOM refs ──────────────────────────────────────────
+                        const ageSlider = document.getElementById('wf-age-slider');
+                        const contribSlider = document.getElementById('wf-contrib-slider');
+                        const ageDisplay = document.getElementById('wf-age-display');
+                        const contribDisplay = document.getElementById('wf-contrib-display');
+                        const totalEl = document.getElementById('wf-total-balance');
+                        const ctx = document.getElementById('wf-chart').getContext('2d');
+
+                        // ── Gradient fill ─────────────────────────────────────
+                        function makeGradient() {
+                            const grad = ctx.createLinearGradient(0, 0, 0, 260);
+                            const hex = getComputedStyle(document.documentElement)
+                                .getPropertyValue('--brand-primary').trim() || '#4a8fd5';
+                            grad.addColorStop(0, hex.startsWith('#') ? hex + '55' : 'rgba(74,143,213,.33)');
+                            grad.addColorStop(0.8, hex.startsWith('#') ? hex + '05' : 'rgba(74,143,213,.02)');
+                            grad.addColorStop(1, 'rgba(0,0,0,0)');
+                            return grad;
+                        }
+
+                        // ── Compute data ──────────────────────────────────────
+                        function computeSeries(currentAge, monthly) {
+                            const years = RETIREMENT_AGE - currentAge;
+                            const monthlyRate = ANNUAL_RATE / 12;
+                            const labels = [];
+                            const invest = [];
+                            const cash = [];
+
+                            for (let y = 0; y <= years; y++) {
+                                const age = currentAge + y;
+                                labels.push(age);
+                                const n = y * 12;
+                                // FV of annuity: PMT * ((1+r)^n - 1) / r
+                                const fv = monthlyRate > 0
+                                    ? monthly * ((Math.pow(1 + monthlyRate, n) - 1) / monthlyRate)
+                                    : monthly * n;
+                                invest.push(Math.round(fv));
+                                cash.push(monthly * n);
+                            }
+                            return { labels, invest, cash };
+                        }
+
+                        // ── Counter animation ─────────────────────────────────
+                        let _countRaf = null;
+                        function animateCounter(target) {
+                            if (_countRaf) cancelAnimationFrame(_countRaf);
+                            const start = parseFloat((totalEl.dataset.current || '0').replace(/[^0-9.]/g, '')) || 0;
+                            const duration = 700;
+                            const startTime = performance.now();
+
+                            function tick(now) {
+                                const progress = Math.min((now - startTime) / duration, 1);
+                                const ease = 1 - Math.pow(1 - progress, 3);
+                                const value = Math.round(start + (target - start) * ease);
+                                totalEl.textContent = '$' + value.toLocaleString();
+                                if (progress < 1) {
+                                    _countRaf = requestAnimationFrame(tick);
+                                } else {
+                                    totalEl.dataset.current = target;
+                                    _countRaf = null;
+                                }
+                            }
+                            _countRaf = requestAnimationFrame(tick);
+                        }
+
+                        // ── Build Chart ───────────────────────────────────────
+                        const { labels, invest, cash } = computeSeries(28, 500);
+
+                        const chart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels,
+                                datasets: [
+                                    {
+                                        label: 'Інвестиції (8%)',
+                                        data: invest,
+                                        borderColor: getComputedStyle(document.documentElement)
+                                            .getPropertyValue('--brand-primary').trim() || '#4a8fd5',
+                                        borderWidth: 2.5,
+                                        backgroundColor: makeGradient(),
+                                        fill: true,
+                                        tension: 0.42,
+                                        pointRadius: 0,
+                                        pointHoverRadius: 5,
+                                    },
+                                    {
+                                        label: 'Готівка (0%)',
+                                        data: cash,
+                                        borderColor: 'rgba(148,163,184,.55)',
+                                        borderWidth: 2,
+                                        borderDash: [7, 5],
+                                        backgroundColor: 'transparent',
+                                        fill: false,
+                                        tension: 0,
+                                        pointRadius: 0,
+                                        pointHoverRadius: 4,
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: { duration: 450, easing: 'easeInOutQuart' },
+                                interaction: { mode: 'index', intersect: false },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(15,23,42,.92)',
+                                        titleColor: '#94a3b8',
+                                        bodyColor: '#f1f5f9',
+                                        borderColor: 'rgba(74,143,213,.3)',
+                                        borderWidth: 1,
+                                        padding: 12,
+                                        callbacks: {
+                                            title: (items) => 'Вік: ' + items[0].label,
+                                            label: (item) =>
+                                                (item.datasetIndex === 0 ? '📈 Інвестиції' : '💵 Готівка') +
+                                                ': $' + Number(item.raw).toLocaleString()
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        grid: { color: 'rgba(255,255,255,.04)' },
+                                        ticks: {
+                                            color: 'rgba(148,163,184,.7)',
+                                            font: { size: 11 },
+                                            maxTicksLimit: 10,
+                                        },
+                                        border: { color: 'transparent' }
+                                    },
+                                    y: {
+                                        grid: { color: 'rgba(255,255,255,.04)' },
+                                        ticks: {
+                                            color: 'rgba(148,163,184,.7)',
+                                            font: { size: 11 },
+                                            callback: (v) => '$' + (v >= 1e6
+                                                ? (v / 1e6).toFixed(1) + 'M'
+                                                : v >= 1e3 ? (v / 1e3).toFixed(0) + 'k'
+                                                    : v)
+                                        },
+                                        border: { color: 'transparent' }
+                                    }
+                                }
+                            }
+                        });
+
+                        // ── Initial total ─────────────────────────────────────
+                        totalEl.dataset.current = '0';
+                        animateCounter(invest[invest.length - 1]);
+
+                        // ── Update function ────────────────────────────────────
+                        function update() {
+                            const age = parseInt(ageSlider.value, 10);
+                            const monthly = parseInt(contribSlider.value, 10);
+
+                            ageDisplay.textContent = age;
+                            contribDisplay.textContent = '$' + monthly.toLocaleString();
+
+                            // Update slider fill track
+                            const agePct = ((age - 18) / (60 - 18)) * 100;
+                            const contribPct = ((monthly - 100) / (10000 - 100)) * 100;
+                            const brandColor = getComputedStyle(document.documentElement)
+                                .getPropertyValue('--brand-primary').trim() || '#4a8fd5';
+                            ageSlider.style.background =
+                                `linear-gradient(to right, ${brandColor} ${agePct}%, var(--border-color,rgba(255,255,255,.1)) ${agePct}%)`;
+                            contribSlider.style.background =
+                                `linear-gradient(to right, ${brandColor} ${contribPct}%, var(--border-color,rgba(255,255,255,.1)) ${contribPct}%)`;
+
+                            const series = computeSeries(age, monthly);
+                            chart.data.labels = series.labels;
+                            chart.data.datasets[0].data = series.invest;
+                            chart.data.datasets[0].borderColor = brandColor;
+                            chart.data.datasets[0].backgroundColor = makeGradient();
+                            chart.data.datasets[1].data = series.cash;
+                            chart.update();
+
+                            animateCounter(series.invest[series.invest.length - 1]);
+                        }
+
+                        // ── Trigger initial fill ───────────────────────────────
+                        update();
+
+                        ageSlider.addEventListener('input', update);
+                        contribSlider.addEventListener('input', update);
+                    })();
+                </script>
 
                 <!-- My Courses Section -->
                 <div class="card"
