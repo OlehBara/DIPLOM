@@ -34,7 +34,8 @@ def register(request):
 @login_required
 def profile_view(request):
     """Особистий кабінет користувача"""
-    user_courses = CartItem.objects.filter(user=request.user).select_related('course')
+    # Enrolled courses (purchased) — persisted in Enrollment after payment
+    user_courses = Enrollment.objects.filter(user=request.user).select_related('course')
 
     # Для адміна — список усіх повідомлень із форми зворотного зв'язку
     contact_messages = None
@@ -100,29 +101,38 @@ def courses(request):
     """Сторінка курсів"""
     # Отримуємо курси за категоріями (строга фільтрація)
     premium_courses = Course.objects.filter(is_active=True, is_premium=True)
-    
+
     # "Звичайні" курси (безкоштовні та платні не-преміум) для загального каталогу
     # Використовуємо is_premium=False, щоб преміум курси не потрапляли сюди
     courses_list = Course.objects.filter(is_active=True, is_premium=False)
-    
+
     # Фільтрація за категорією
     category = request.GET.get('category', 'all')
     if category != 'all':
         courses_list = courses_list.filter(category=category)
-    
+
     # Пошук
     search = request.GET.get('search', '')
     if search:
         courses_list = courses_list.filter(
-            models.Q(title__icontains=search) | 
+            models.Q(title__icontains=search) |
             models.Q(description__icontains=search)
         )
-    
+
+    # IDs курсів що вже придбані — для показу правильного стану кнопок
+    enrolled_ids = set()
+    if request.user.is_authenticated:
+        enrolled_ids = set(
+            Enrollment.objects.filter(user=request.user)
+            .values_list('course_id', flat=True)
+        )
+
     context = {
         'courses': courses_list,
         'premium_courses': premium_courses,
         'current_category': category,
         'search_query': search,
+        'enrolled_ids': enrolled_ids,
     }
     return render(request, 'main/courses.html', context)
 
@@ -151,11 +161,37 @@ def course_detail(request, course_id):
         if session_key:
             in_cart = CartItem.objects.filter(session_key=session_key, course=course).exists()
 
+    # Static modules list (can be replaced by a DB model later)
+    modules = [
+        {
+            'title': 'Модуль 1: Основи фінансової грамотності',
+            'lessons': ['Що таке особистий бюджет?', 'Правило 50/30/20', 'Психологія грошей'],
+            'duration': '2 год 15 хв',
+        },
+        {
+            'title': 'Модуль 2: Інструменти управління грошима',
+            'lessons': ['Банківські вклади та депозити', 'Картки та cashback-стратегії', 'Мобільні застосунки для бюджету'],
+            'duration': '1 год 50 хв',
+        },
+        {
+            'title': 'Модуль 3: Інвестиції для початківців',
+            'lessons': ['Фондовий ринок: базові поняття', 'ETF та диверсифікація', 'Ризики та їх мінімізація'],
+            'duration': '3 год 10 хв',
+        },
+        {
+            'title': 'Модуль 4: Довгострокова стратегія',
+            'lessons': ['Пенсійне планування', 'Страхування та захист активів', 'Ваш фінансовий план на 10 років'],
+            'duration': '2 год 30 хв',
+        },
+    ]
+
     context = {
         'course': course,
         'related_courses': related_courses,
         'is_enrolled': is_enrolled,
         'in_cart': in_cart,
+        'is_purchased': is_enrolled,   # semantic alias used in template
+        'modules': modules,
     }
     return render(request, 'main/course_detail.html', context)
 
@@ -264,7 +300,16 @@ def add_to_cart(request, course_id):
     """Додавання курсу в кошик (AJAX)"""
     try:
         course = Course.objects.get(id=course_id)
-        
+
+        # ── Guard: курс вже куплений — не можна додати знову ──
+        if request.user.is_authenticated:
+            if Enrollment.objects.filter(user=request.user, course=course).exists():
+                return JsonResponse({
+                    'success': False,
+                    'already_enrolled': True,
+                    'message': f'Ви вже придбали курс "{course.title}"',
+                })
+
         if request.user.is_authenticated:
             # Для авторизованих користувачів
             cart_item, created = CartItem.objects.get_or_create(
@@ -278,19 +323,19 @@ def add_to_cart(request, course_id):
             if not session_key:
                 request.session.create()
                 session_key = request.session.session_key
-                
+
             cart_item, created = CartItem.objects.get_or_create(
                 session_key=session_key,
                 course=course
             )
             count = CartItem.objects.filter(session_key=session_key).count()
-            
+
         return JsonResponse({
-            'success': True, 
+            'success': True,
             'message': f'Курс "{course.title}" додано до кошика',
             'cart_count': count
         })
-        
+
     except Course.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Курс не знайдено'})
     except Exception as e:
@@ -396,3 +441,93 @@ def delete_course(request, course_id):
         return redirect('courses')
     return render(request, 'main/delete_course_confirm.html', {'course': course})
 
+
+# ──────────────────────────────────────────────
+#  PAYMENT (FAKE GATEWAY)
+# ──────────────────────────────────────────────
+
+@login_required
+def checkout(request):
+    """Render the fake payment gateway page."""
+    if request.user.is_authenticated:
+        cart_items = CartItem.objects.filter(user=request.user).select_related('course')
+    else:
+        session_key = request.session.session_key
+        cart_items = CartItem.objects.filter(session_key=session_key).select_related('course') if session_key else []
+
+    if not cart_items:
+        messages.info(request, 'Ваш кошик порожній.')
+        return redirect('cart_detail')
+
+    total_price = sum(item.course.price for item in cart_items)
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+    }
+    return render(request, 'main/payment.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def process_payment(request):
+    """
+    Fake payment processing:
+    - Enroll user in every course from the cart
+    - Clear the cart
+    - Redirect to profile with a success message
+    """
+    cart_items = CartItem.objects.filter(user=request.user).select_related('course')
+
+    enrolled_count = 0
+    for item in cart_items:
+        Enrollment.objects.get_or_create(user=request.user, course=item.course)
+        enrolled_count += 1
+
+    cart_items.delete()
+
+    if enrolled_count:
+        messages.success(
+            request,
+            f'✅ Оплата успішна! Ви отримали доступ до {enrolled_count} курс(ів).'
+        )
+    else:
+        messages.info(request, 'Кошик був порожній — нічого не оплачено.')
+
+    return redirect('profile')
+
+
+@login_required
+def payment_success(request):
+    """
+    Confirm payment and enroll the user in all cart courses.
+
+    Steps:
+    1. Fetch all CartItem records for the current user.
+    2. Create an Enrollment for each course (get_or_create avoids duplicates).
+    3. Delete all CartItem records — clears the cart.
+    4. Redirect to the profile page where enrolled courses are listed.
+
+    After this view runs:
+    - The "Купити" button on course_detail will show "Вже куплено"
+      because `is_enrolled` is checked via Enrollment.objects.filter(...).exists()
+    - The cart badge count drops to 0.
+    """
+    cart_items = CartItem.objects.filter(user=request.user).select_related('course')
+
+    enrolled_count = 0
+    for item in cart_items:
+        Enrollment.objects.get_or_create(user=request.user, course=item.course)
+        enrolled_count += 1
+
+    # Clear the cart
+    cart_items.delete()
+
+    if enrolled_count:
+        messages.success(
+            request,
+            f'🎉 Вітаємо! Ви успішно придбали {enrolled_count} курс(ів). Приємного навчання!'
+        )
+    else:
+        messages.info(request, 'Кошик був порожній.')
+
+    return redirect('profile')
