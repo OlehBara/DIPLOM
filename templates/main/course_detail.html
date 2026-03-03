@@ -749,9 +749,23 @@
                         <span class="dot"></span>
                         Доступ відкрито
                     </div>
+                    {% if 'бюджетування' in course.title|lower %}
+                    <a href="{% url 'lesson_budgeting_1' %}" class="btn-go">
+                        ▶ Перейти до навчання
+                    </a>
+                    {% elif 'сім' in course.title|lower %}
+                    <a href="{% url 'lesson_family_1' %}" class="btn-go">
+                        ▶ Перейти до навчання
+                    </a>
+                    {% elif 'грамотність' in course.title|lower %}
+                    <a href="{% url 'lesson_literacy_1' %}" class="btn-go">
+                        ▶ Перейти до навчання
+                    </a>
+                    {% else %}
                     <a href="{% url 'profile' %}" class="btn-go">
                         ▶ Перейти до навчання
                     </a>
+                    {% endif %}
                 </div>
                 {% else %}
                 <!-- ❌ Курс не куплений -->

@@ -26,4 +26,22 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('payment/process/', views.process_payment, name='process_payment'),
     path('payment/success/', views.payment_success, name='payment_success'),
+
+    # Course 1: Основи бюджетування
+    path('lessons/budgeting/1/', views.lesson_budgeting_1, name='lesson_budgeting_1'),
+    path('lessons/budgeting/2/', views.lesson_budgeting_2, name='lesson_budgeting_2'),
+    path('lessons/budgeting/3/', views.lesson_budgeting_3, name='lesson_budgeting_3'),
+    path('lessons/budgeting/4/', views.lesson_budgeting_4, name='lesson_budgeting_4'),
+
+    # Course 2: Фінансове планування сім'ї
+    path('lessons/family/1/', views.lesson_family_1, name='lesson_family_1'),
+    path('lessons/family/2/', views.lesson_family_2, name='lesson_family_2'),
+    path('lessons/family/3/', views.lesson_family_3, name='lesson_family_3'),
+    path('lessons/family/4/', views.lesson_family_4, name='lesson_family_4'),
+
+    # Course 3: Фінансова грамотність для початківців
+    path('lessons/literacy/1/', views.lesson_literacy_1, name='lesson_literacy_1'),
+    path('lessons/literacy/2/', views.lesson_literacy_2, name='lesson_literacy_2'),
+    path('lessons/literacy/3/', views.lesson_literacy_3, name='lesson_literacy_3'),
+    path('lessons/literacy/4/', views.lesson_literacy_4, name='lesson_literacy_4'),
 ]

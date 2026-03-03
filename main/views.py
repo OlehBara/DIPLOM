@@ -531,3 +531,57 @@ def payment_success(request):
         messages.info(request, 'Кошик був порожній.')
 
     return redirect('profile')
+
+
+# ─── Course 1: Основи бюджетування ───────────────────────────────────────────
+@login_required
+def lesson_budgeting_1(request):
+    return render(request, 'main/lesson_budgeting_1.html')
+
+@login_required
+def lesson_budgeting_2(request):
+    return render(request, 'main/lesson_budgeting_2.html')
+
+@login_required
+def lesson_budgeting_3(request):
+    return render(request, 'main/lesson_budgeting_3.html')
+
+@login_required
+def lesson_budgeting_4(request):
+    return render(request, 'main/lesson_budgeting_4.html')
+
+
+# ─── Course 2: Фінансове планування сім'ї ────────────────────────────────────
+@login_required
+def lesson_family_1(request):
+    return render(request, 'main/lesson_family_1.html')
+
+@login_required
+def lesson_family_2(request):
+    return render(request, 'main/lesson_family_2.html')
+
+@login_required
+def lesson_family_3(request):
+    return render(request, 'main/lesson_family_3.html')
+
+@login_required
+def lesson_family_4(request):
+    return render(request, 'main/lesson_family_4.html')
+
+
+# ─── Course 3: Фінансова грамотність для початківців ─────────────────────────
+@login_required
+def lesson_literacy_1(request):
+    return render(request, 'main/lesson_literacy_1.html')
+
+@login_required
+def lesson_literacy_2(request):
+    return render(request, 'main/lesson_literacy_2.html')
+
+@login_required
+def lesson_literacy_3(request):
+    return render(request, 'main/lesson_literacy_3.html')
+
+@login_required
+def lesson_literacy_4(request):
+    return render(request, 'main/lesson_literacy_4.html')
