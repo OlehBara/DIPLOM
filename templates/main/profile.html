@@ -69,7 +69,8 @@
                         </div>
                     </div>
 
-                    <!-- Chart -->
+                    <!-- Chart / Lock -->
+                    {% if user_courses %}
                     <div class="wf-chart-wrap">
                         <canvas id="wf-chart"></canvas>
                     </div>
@@ -89,6 +90,24 @@
                         <span class="wf-total-label">Прогнозований баланс на пенсії</span>
                         <span class="wf-total-value" id="wf-total-balance">$0</span>
                     </div>
+                    {% else %}
+                    <!-- Locked state -->
+                    <div style="height:280px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+                                background: rgba(255,255,255,.03); border-radius:12px; border: 1px dashed rgba(255,255,255,.1);
+                                margin-bottom:16px; gap: 14px; text-align:center; padding: 20px;">
+                        <span style="font-size:64px; line-height:1;">😔</span>
+                        <p
+                            style="font-size:15px; font-weight:600; color: var(--text-muted, #94a3b8); max-width:280px; line-height:1.5; margin:0;">
+                            Для доступу до цієї функції купіть щонайменше один курс
+                        </p>
+                        <a href="{% url 'courses' %}" style="margin-top:4px; padding:10px 24px;
+                            background: linear-gradient(135deg, var(--brand-primary,#4a8fd5), #2563eb);
+                            color:#fff; border-radius:10px; font-size:14px; font-weight:700;
+                            text-decoration:none; box-shadow:0 6px 20px rgba(74,143,213,.35);">
+                            Переглянути курси
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- ── Wealth Forecast Styles ── -->
@@ -331,7 +350,9 @@
                         const ageDisplay = document.getElementById('wf-age-display');
                         const contribDisplay = document.getElementById('wf-contrib-display');
                         const totalEl = document.getElementById('wf-total-balance');
-                        const ctx = document.getElementById('wf-chart').getContext('2d');
+                        const wfCanvas = document.getElementById('wf-chart');
+                        if (!wfCanvas) return; // no canvas = locked state, exit early
+                        const ctx = wfCanvas.getContext('2d');
 
                         // ── Gradient fill ─────────────────────────────────────
                         function makeGradient() {
