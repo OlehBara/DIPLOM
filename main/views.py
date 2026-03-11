@@ -12,6 +12,7 @@ from django.contrib.auth import login
 # from django.contrib.auth.forms import UserCreationForm # Replaced by custom form
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .models import Course, Review, ContactMessage, CartItem, Enrollment
+from django.utils import timezone
 
 
 def register(request):
@@ -34,8 +35,15 @@ def register(request):
 @login_required
 def profile_view(request):
     """Особистий кабінет користувача"""
-    # Enrolled courses (purchased) — persisted in Enrollment after payment
-    user_courses = Enrollment.objects.filter(user=request.user).select_related('course')
+    # Активні курси (ще не завершені)
+    user_courses = Enrollment.objects.filter(
+        user=request.user, is_completed=False, course__is_premium=True
+    ).select_related('course')
+
+    # Пройдені курси (завершені)
+    completed_courses = Enrollment.objects.filter(
+        user=request.user, is_completed=True
+    ).select_related('course')
 
     # Для адміна — список усіх повідомлень із форми зворотного зв'язку
     contact_messages = None
@@ -46,6 +54,7 @@ def profile_view(request):
         'display_name': request.user.username,
         'display_email': request.user.email,
         'user_courses': user_courses,
+        'completed_courses': completed_courses,
         'contact_messages': contact_messages,
     }
     return render(request, 'main/profile.html', context)
@@ -585,3 +594,61 @@ def lesson_literacy_3(request):
 @login_required
 def lesson_literacy_4(request):
     return render(request, 'main/lesson_literacy_4.html')
+
+
+# ─── Free Courses ─────────────────────────────────────────────────────────────
+
+# Маппінг: частина назви курсу → шаблон
+FREE_COURSE_TEMPLATE_MAP = {
+    'Фондовий ринок': 'main/lesson_free_stock.html',
+    'Іпотека': 'main/lesson_free_mortgage.html',
+    'Пенсійне': 'main/lesson_free_pension.html',
+    'Фінансові пастки': 'main/lesson_free_scam.html',
+    'Інфляція': 'main/lesson_free_inflation.html',
+}
+
+
+@login_required
+def free_lesson(request, course_id):
+    """Сторінка безкоштовного уроку"""
+    course = get_object_or_404(Course, id=course_id, is_premium=False)
+
+    # Автоматично створюємо Enrollment якщо ще немає
+    Enrollment.objects.get_or_create(user=request.user, course=course)
+
+    template = None
+    for key, tmpl in FREE_COURSE_TEMPLATE_MAP.items():
+        if key in course.title:
+            template = tmpl
+            break
+
+    if not template:
+        template = 'main/lesson_free.html'
+
+    return render(request, template, {'course': course})
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_lesson_complete(request):
+    """AJAX: позначити безкоштовний курс як завершений"""
+    try:
+        data = json.loads(request.body)
+        course_id = data.get('course_id')
+
+        course = get_object_or_404(Course, id=course_id)
+        enrollment, created = Enrollment.objects.get_or_create(
+            user=request.user,
+            course=course
+        )
+        enrollment.is_completed = True
+        enrollment.completion_date = timezone.now()
+        enrollment.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Курс "{course.title}" успішно завершено!'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+

@@ -111,6 +111,8 @@ class Enrollment(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='enrollments')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
     enrolled_at = models.DateTimeField(auto_now_add=True)
+    is_completed = models.BooleanField(default=False)
+    completion_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         managed = True

@@ -44,4 +44,8 @@ urlpatterns = [
     path('lessons/literacy/2/', views.lesson_literacy_2, name='lesson_literacy_2'),
     path('lessons/literacy/3/', views.lesson_literacy_3, name='lesson_literacy_3'),
     path('lessons/literacy/4/', views.lesson_literacy_4, name='lesson_literacy_4'),
+
+    # Free courses
+    path('course/<int:course_id>/free/', views.free_lesson, name='free_lesson'),
+    path('api/mark-lesson-complete/', views.mark_lesson_complete, name='mark_lesson_complete'),
 ]

@@ -93,15 +93,19 @@
                             </div>
                             <span style="font-weight: 600; color: var(--text-primary);">{{ user.username }}</span>
                         </a>
-                        <a href="{% url 'logout' %}"
-                            style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 4px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                        </a>
+                        <form method="post" action="{% url 'logout' %}"
+                            style="margin: 0; display: flex; align-items: center;">
+                            {% csrf_token %}
+                            <button type="submit"
+                                style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 4px; padding: 0;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                            </button>
+                        </form>
                     </div>
                     {% endif %}
 
@@ -164,15 +168,19 @@
                 {% if user.is_staff %}
                 <a href="/admin/" class="admin-link" style="font-size: 14px;">👑 Панель управління</a>
                 {% endif %}
-                <a href="{% url 'logout' %}"
-                    style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    Вийти
-                </a>
+                <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit"
+                        style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 8px; padding: 0; font-family: inherit;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Вийти
+                    </button>
+                </form>
             </div>
             {% endif %}
         </nav>

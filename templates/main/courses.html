@@ -127,7 +127,11 @@
                             {% if forloop.counter <= course.rating %}⭐{% endif %} {% endfor %} </span>
                                 <span class="rating-text">{{ course.rating }}</span>
                     </div>
-                    <a href="#" class="btn-secondary">Детальніше</a>
+                    {% if course.is_premium %}
+                    <a href="{% url 'course_detail' course.id %}" class="btn-secondary">Детальніше</a>
+                    {% else %}
+                    <a href="{% url 'free_lesson' course.id %}" class="btn-secondary">Почати</a>
+                    {% endif %}
                 </div>
             </div>
             {% empty %}
