@@ -1,5 +1,8 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Course(models.Model):
     title = models.CharField(max_length=200, null=False)
@@ -55,7 +58,8 @@ class CartItem(models.Model):
 
 
 class Review(models.Model):
-    user_name = models.CharField(max_length=100, null=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField(null=False)
     rating = models.PositiveSmallIntegerField(
         null=False,
@@ -68,13 +72,31 @@ class Review(models.Model):
     class Meta:
         managed = False
         db_table = 'Review'
+        unique_together = ('user', 'course')
         indexes = [
+            models.Index(fields=['course'], name='idx_review_course'),
+            models.Index(fields=['user'], name='idx_review_user'),
             models.Index(fields=['rating'], name='idx_review_rating'),
             models.Index(fields=['created_at'], name='idx_review_created_at'),
         ]
 
     def __str__(self):
-        return f"{self.user_name} - {self.rating}"
+        return f"{self.display_name} - {self.rating}"
+
+    @property
+    def display_name(self):
+        full_name = (self.user.get_full_name() or '').strip()
+        return full_name or self.user.username
+
+    @property
+    def initials(self):
+        name = (self.display_name or '').strip()
+        if not name:
+            return '??'
+        parts = [p for p in name.split() if p]
+        if len(parts) >= 2:
+            return (parts[0][0] + parts[1][0]).upper()
+        return parts[0][:2].upper()
 
 
 class ContactMessage(models.Model):
@@ -123,18 +145,38 @@ class Enrollment(models.Model):
         return f'{self.user.username} → {self.course.title}'
 
 
+class LessonProgress(models.Model):
+    STATUS_CHOICES = [
+        ('completed', 'Completed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_progress')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lesson_progress')
+    lesson_key = models.CharField(max_length=50)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed')
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'main_lessonprogress'
+        unique_together = ('user', 'course', 'lesson_key')
+
+    def __str__(self):
+        return f'{self.user.username} -> {self.course.title} [{self.lesson_key}]'
+
+
 # Signals to create Profile automatically
 from django.db.models.signals import post_save
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User as AuthUser
 from django.dispatch import receiver
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=AuthUser)
 def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=AuthUser)
 def save_profile(sender, instance, **kwargs):
     instance.profile.save()

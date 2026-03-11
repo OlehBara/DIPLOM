@@ -48,4 +48,6 @@ urlpatterns = [
     # Free courses
     path('course/<int:course_id>/free/', views.free_lesson, name='free_lesson'),
     path('api/mark-lesson-complete/', views.mark_lesson_complete, name='mark_lesson_complete'),
+    path('api/mark-premium-lesson-complete/', views.mark_premium_lesson_complete, name='mark_premium_lesson_complete'),
+    path('api/reviews/', views.submit_review, name='submit_review'),
 ]

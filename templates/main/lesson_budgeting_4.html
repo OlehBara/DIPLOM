@@ -311,6 +311,99 @@
         margin: 0 0 18px;
     }
 
+    .review-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        text-align: left;
+    }
+
+    .review-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: var(--v4);
+        background: rgba(168, 85, 247, .12);
+        padding: 4px 10px;
+        border-radius: 999px;
+        width: fit-content;
+    }
+
+    .review-stars {
+        display: flex;
+        gap: 8px;
+    }
+
+    .review-star {
+        background: transparent;
+        border: none;
+        font-size: 30px;
+        color: rgba(255, 255, 255, .18);
+        cursor: pointer;
+        transition: color .15s, transform .1s;
+    }
+
+    .review-star.active {
+        color: var(--gold);
+        transform: scale(1.05);
+    }
+
+    .review-textarea {
+        width: 100%;
+        min-height: 120px;
+        background: rgba(255, 255, 255, .04);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        color: var(--txt);
+        font-size: 14.5px;
+        line-height: 1.6;
+        padding: 12px 14px;
+        resize: vertical;
+        outline: none;
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .review-submit {
+        padding: 12px 26px;
+        background: linear-gradient(135deg, var(--v6), var(--v4));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(168, 85, 247, .4);
+    }
+
+    .review-submit:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    .review-message {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+    }
+
+    .review-note {
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(245, 183, 49, .1);
+        border: 1px solid rgba(245, 183, 49, .3);
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
     .btn-done {
         display: inline-flex;
         align-items: center;
@@ -725,11 +818,37 @@
         </div>
 
         <!-- Finish banner -->
-        <div class="finish-banner" id="finishBanner" style="display:none;">
-            <h3>🎉 Вітаємо! Курс завершено!</h3>
-            <p>Ви пройшли всі 4 уроки курсу "Основи бюджетування". Ваші знання тепер на новому рівні!</p>
-            <a href="{% url 'courses' %}" class="btn-done">🏠 Повернутись до курсів</a>
+                <div class="finish-banner" id="finishBanner" data-course-id="{{ course.id }}" data-lesson-key="budgeting_4" style="display:none;">
+            {% if course %}
+            <div class="review-form">
+                <span class="review-badge">Відгук</span>
+                <h3>Дякуємо за проходження курсу!</h3>
+                <p>Поділіться враженнями — це допоможе нам зробити курс ще кращим.</p>
+
+                {% if existing_review %}
+                <div class="review-note">Ви вже залишали відгук — можна оновити його нижче.</div>
+                {% endif %}
+
+                <div class="review-stars">
+                    <button type="button" class="review-star" data-value="1">★</button>
+                    <button type="button" class="review-star" data-value="2">★</button>
+                    <button type="button" class="review-star" data-value="3">★</button>
+                    <button type="button" class="review-star" data-value="4">★</button>
+                    <button type="button" class="review-star" data-value="5">★</button>
+                </div>
+                <input type="hidden" id="reviewRating" value="{{ existing_review.rating|default:5 }}">
+                <textarea id="reviewText" class="review-textarea" placeholder="Розкажіть, що сподобалося або що можна покращити..." required>{% if existing_review %}{{ existing_review.text }}{% endif %}</textarea>
+                <div class="review-actions">
+                    <button type="button" class="review-submit" id="reviewSubmit">Надіслати</button>
+                </div>
+                <div class="review-message" id="reviewMessage"></div>
+            </div>
+            {% else %}
+            <h3>Курс завершено!</h3>
+            <p>Дякуємо за навчання. Невдовзі тут з'явиться форма відгуку.</p>
+            {% endif %}
         </div>
+
 
         <div class="ls-nav">
             <a href="{% url 'lesson_budgeting_3' %}" class="ls-nav-btn" style="justify-content:flex-start;">
@@ -744,8 +863,160 @@
 
 <script>
     const answered = { 1: false, 2: false, 3: false };
-    document.querySelectorAll('.ls-opt').forEach(function (o) { o.addEventListener('click', function () { document.querySelectorAll('[data-q="' + this.dataset.q + '"]').forEach(function (s) { s.classList.remove('selected'); }); this.classList.add('selected'); }); });
-    function checkQ(n, cv) { const c = document.querySelector('input[name="q' + n + '"]:checked'); if (!c) { alert('Оберіть відповідь!'); return; } const val = c.value; document.querySelectorAll('[data-q="' + n + '"]').forEach(function (o) { if (o.dataset.val === cv) o.classList.add('correct'); else if (o.dataset.val === val) o.classList.add('wrong'); o.style.pointerEvents = 'none'; }); const res = document.getElementById('res' + n); res.style.display = 'flex'; res.className = 'ls-result ' + (val === cv ? 'ok' : 'err'); res.innerHTML = val === cv ? '✅ Правильно! Чудова робота!' : '❌ Неправильно. Правильна відповідь позначена зеленим.'; document.getElementById('btn' + n).disabled = true; document.getElementById('retry' + n).style.display = 'inline-block'; answered[n] = true; if (answered[1] && answered[2] && answered[3]) document.getElementById('finishBanner').style.display = 'block'; }
-    function retryQ(n) { document.querySelectorAll('[data-q="' + n + '"]').forEach(function (o) { o.classList.remove('selected', 'correct', 'wrong'); o.style.pointerEvents = ''; }); document.querySelectorAll('input[name="q' + n + '"]').forEach(function (i) { i.checked = false; }); document.getElementById('res' + n).style.display = 'none'; document.getElementById('btn' + n).disabled = false; document.getElementById('retry' + n).style.display = 'none'; answered[n] = false; }
+
+    document.querySelectorAll('.ls-opt').forEach(function (o) {
+        o.addEventListener('click', function () {
+            document.querySelectorAll('[data-q="' + this.dataset.q + '"]').forEach(function (s) {
+                s.classList.remove('selected');
+            });
+            this.classList.add('selected');
+        });
+    });
+
+    function getCsrfToken() {
+        const row = document.cookie.split('; ').find(r => r.startsWith('csrftoken='));
+        return row ? row.split('=')[1] : '';
+    }
+
+    function initReviewForm() {
+        const banner = document.getElementById('finishBanner');
+        if (!banner) return null;
+
+        const courseId = banner.dataset.courseId;
+        const lessonKey = banner.dataset.lessonKey;
+        const ratingInput = banner.querySelector('#reviewRating');
+        const textInput = banner.querySelector('#reviewText');
+        const message = banner.querySelector('#reviewMessage');
+        const submitBtn = banner.querySelector('#reviewSubmit');
+        const stars = banner.querySelectorAll('.review-star');
+        let completedSent = false;
+
+        function setRating(val) {
+            if (!ratingInput) return;
+            ratingInput.value = String(val);
+            stars.forEach(function (star) {
+                const starVal = parseInt(star.dataset.value, 10);
+                if (starVal <= val) star.classList.add('active');
+                else star.classList.remove('active');
+            });
+        }
+
+        const initialRating = parseInt((ratingInput && ratingInput.value) || '5', 10) || 5;
+        setRating(initialRating);
+
+        stars.forEach(function (star) {
+            star.addEventListener('click', function () {
+                const val = parseInt(star.dataset.value, 10);
+                if (!Number.isNaN(val)) setRating(val);
+            });
+        });
+
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function () {
+                if (!courseId) return;
+
+                const rating = parseInt((ratingInput && ratingInput.value) || '0', 10);
+                const text = (textInput && textInput.value || '').trim();
+
+                if (!text || rating < 1 || rating > 5) {
+                    if (message) message.textContent = 'Заповніть текст та оберіть рейтинг 1-5.';
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Надсилаємо...';
+
+                fetch('{% url "submit_review" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken(),
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        course_id: courseId,
+                        rating: rating,
+                        text: text,
+                    }),
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (message) message.textContent = data.message || (data.success ? 'Дякуємо за відгук!' : 'Спробуйте ще раз.');
+                    })
+                    .catch(() => {
+                        if (message) message.textContent = 'Не вдалося надіслати відгук.';
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Надіслати';
+                    });
+            });
+        }
+
+        return function markCompleted() {
+            if (completedSent || !courseId || !lessonKey) return;
+            completedSent = true;
+
+            fetch('{% url "mark_premium_lesson_complete" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    course_id: courseId,
+                    lesson_key: lessonKey,
+                    is_final: true,
+                }),
+            }).catch(() => { /* noop */ });
+        };
+    }
+
+    const markCompleted = initReviewForm();
+
+    function showFinishBanner() {
+        const banner = document.getElementById('finishBanner');
+        if (banner) banner.style.display = 'block';
+        if (typeof markCompleted === 'function') markCompleted();
+    }
+
+    function checkQ(n, cv) {
+        const c = document.querySelector('input[name="q' + n + '"]:checked');
+        if (!c) {
+            alert('Оберіть відповідь!');
+            return;
+        }
+        const val = c.value;
+        document.querySelectorAll('[data-q="' + n + '"]').forEach(function (o) {
+            if (o.dataset.val === cv) o.classList.add('correct');
+            else if (o.dataset.val === val) o.classList.add('wrong');
+            o.style.pointerEvents = 'none';
+        });
+        const res = document.getElementById('res' + n);
+        res.style.display = 'flex';
+        res.className = 'ls-result ' + (val === cv ? 'ok' : 'err');
+        res.innerHTML = val === cv
+            ? '✅ Правильно! Чудова робота!'
+            : '❌ Неправильно. Правильна відповідь позначена зеленим.';
+        document.getElementById('btn' + n).disabled = true;
+        document.getElementById('retry' + n).style.display = 'inline-block';
+        answered[n] = true;
+        if (answered[1] && answered[2] && answered[3]) showFinishBanner();
+    }
+
+    function retryQ(n) {
+        document.querySelectorAll('[data-q="' + n + '"]').forEach(function (o) {
+            o.classList.remove('selected', 'correct', 'wrong');
+            o.style.pointerEvents = '';
+        });
+        document.querySelectorAll('input[name="q' + n + '"]').forEach(function (i) {
+            i.checked = false;
+        });
+        document.getElementById('res' + n).style.display = 'none';
+        document.getElementById('btn' + n).disabled = false;
+        document.getElementById('retry' + n).style.display = 'none';
+        answered[n] = false;
+    }
 </script>
 {% endblock %}

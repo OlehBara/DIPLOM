@@ -11,7 +11,7 @@ import json
 from django.contrib.auth import login
 # from django.contrib.auth.forms import UserCreationForm # Replaced by custom form
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
-from .models import Course, Review, ContactMessage, CartItem, Enrollment
+from .models import Course, Review, ContactMessage, CartItem, Enrollment, LessonProgress
 from django.utils import timezone
 
 
@@ -96,7 +96,7 @@ def index(request):
     premium_courses = Course.objects.filter(is_active=True, is_premium=True)[:3]
     
     # Отримуємо схвалені відгуки
-    testimonials = Review.objects.filter(is_approved=True)[:4]
+    testimonials = Review.objects.filter(is_approved=True).select_related('user')[:4]
     
     context = {
         'popular_courses': free_courses,  # Mapping free_courses to expected template variable
@@ -201,6 +201,10 @@ def course_detail(request, course_id):
         'in_cart': in_cart,
         'is_purchased': is_enrolled,   # semantic alias used in template
         'modules': modules,
+        'course_reviews': Review.objects.filter(
+            course=course,
+            is_approved=True
+        ).select_related('user').order_by('-created_at'),
     }
     return render(request, 'main/course_detail.html', context)
 
@@ -298,6 +302,98 @@ def enroll_course(request, course_id):
             'success': True,
             'already_enrolled': not created,
             'message': f'Ви успішно придбали курс "{course.title}"!'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_premium_lesson_complete(request):
+    """AJAX: позначити урок преміум-курсу як завершений"""
+    try:
+        content_type = request.content_type or ''
+        if 'application/json' in content_type:
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        course_id = data.get('course_id')
+        lesson_key = (data.get('lesson_key') or '').strip()
+        is_final = data.get('is_final', False)
+
+        if isinstance(is_final, str):
+            is_final = is_final.lower() in ('1', 'true', 'yes')
+
+        if not course_id or not lesson_key:
+            return JsonResponse({'success': False, 'message': 'Missing course_id or lesson_key'}, status=400)
+
+        course = get_object_or_404(Course, id=course_id)
+
+        if not Enrollment.objects.filter(user=request.user, course=course).exists():
+            return JsonResponse({'success': False, 'message': 'Not enrolled'}, status=403)
+
+        progress, _ = LessonProgress.objects.get_or_create(
+            user=request.user,
+            course=course,
+            lesson_key=lesson_key
+        )
+        progress.status = 'completed'
+        progress.completed_at = timezone.now()
+        progress.save()
+
+        if is_final:
+            Enrollment.objects.filter(user=request.user, course=course).update(
+                is_completed=True,
+                completion_date=timezone.now()
+            )
+
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def submit_review(request):
+    """AJAX: створити/оновити відгук за курсом"""
+    try:
+        content_type = request.content_type or ''
+        if 'application/json' in content_type:
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        course_id = data.get('course_id')
+        text = (data.get('text') or '').strip()
+        rating_raw = data.get('rating')
+
+        try:
+            rating = int(rating_raw)
+        except (TypeError, ValueError):
+            rating = 0
+
+        if not course_id or not text or not (1 <= rating <= 5):
+            return JsonResponse({'success': False, 'message': 'Invalid data'}, status=400)
+
+        course = get_object_or_404(Course, id=course_id)
+
+        if not Enrollment.objects.filter(user=request.user, course=course).exists():
+            return JsonResponse({'success': False, 'message': 'Not enrolled'}, status=403)
+
+        Review.objects.update_or_create(
+            user=request.user,
+            course=course,
+            defaults={
+                'text': text,
+                'rating': rating,
+                'is_approved': False,
+            }
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Дякуємо! Відгук надіслано на модерацію.'
         })
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
@@ -543,6 +639,10 @@ def payment_success(request):
 
 
 # ─── Course 1: Основи бюджетування ───────────────────────────────────────────
+def _get_premium_course_by_keyword(keyword):
+    return Course.objects.filter(is_premium=True, title__icontains=keyword).first()
+
+
 @login_required
 def lesson_budgeting_1(request):
     return render(request, 'main/lesson_budgeting_1.html')
@@ -557,7 +657,14 @@ def lesson_budgeting_3(request):
 
 @login_required
 def lesson_budgeting_4(request):
-    return render(request, 'main/lesson_budgeting_4.html')
+    course = _get_premium_course_by_keyword('бюджет')
+    existing_review = None
+    if course:
+        existing_review = Review.objects.filter(user=request.user, course=course).first()
+    return render(request, 'main/lesson_budgeting_4.html', {
+        'course': course,
+        'existing_review': existing_review,
+    })
 
 
 # ─── Course 2: Фінансове планування сім'ї ────────────────────────────────────
@@ -575,7 +682,14 @@ def lesson_family_3(request):
 
 @login_required
 def lesson_family_4(request):
-    return render(request, 'main/lesson_family_4.html')
+    course = _get_premium_course_by_keyword('сім')
+    existing_review = None
+    if course:
+        existing_review = Review.objects.filter(user=request.user, course=course).first()
+    return render(request, 'main/lesson_family_4.html', {
+        'course': course,
+        'existing_review': existing_review,
+    })
 
 
 # ─── Course 3: Фінансова грамотність для початківців ─────────────────────────
@@ -593,7 +707,14 @@ def lesson_literacy_3(request):
 
 @login_required
 def lesson_literacy_4(request):
-    return render(request, 'main/lesson_literacy_4.html')
+    course = _get_premium_course_by_keyword('грамот')
+    existing_review = None
+    if course:
+        existing_review = Review.objects.filter(user=request.user, course=course).first()
+    return render(request, 'main/lesson_literacy_4.html', {
+        'course': course,
+        'existing_review': existing_review,
+    })
 
 
 # ─── Free Courses ─────────────────────────────────────────────────────────────

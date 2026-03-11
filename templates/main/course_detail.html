@@ -708,6 +708,95 @@
             grid-template-columns: 1fr 1fr;
         }
     }
+
+    /* ─── Reviews section ─── */
+    .cd-reviews {
+        padding: 90px 0;
+        background: #0b1020;
+        color: #e2e8f0;
+    }
+
+    .cd-reviews .cd-section-label {
+        color: #7dd3fc;
+    }
+
+    .cd-reviews .cd-section-title {
+        color: #f8fafc;
+    }
+
+    .cd-review-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .cd-review-card {
+        background: #1a2232;
+        border-radius: 16px;
+        padding: 22px;
+        border: 1px solid rgba(148, 163, 184, .12);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+    }
+
+    .cd-review-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .cd-review-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #7db3e8;
+        color: #0b1020;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: .5px;
+    }
+
+    .cd-review-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .cd-review-stars {
+        display: flex;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .cd-review-stars span {
+        color: rgba(245, 183, 49, .25);
+        font-size: 14px;
+    }
+
+    .cd-review-stars span.filled {
+        color: #f5b731;
+    }
+
+    .cd-review-text {
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: #cbd5f5;
+        margin: 0;
+    }
+
+    .cd-review-empty {
+        color: #94a3b8;
+        font-size: 14px;
+        background: rgba(255, 255, 255, .03);
+        border: 1px dashed rgba(148, 163, 184, .3);
+        padding: 20px;
+        border-radius: 14px;
+        text-align: center;
+        grid-column: 1 / -1;
+    }
 </style>
 
 <!-- ══════════════════════════════════════════════
@@ -964,6 +1053,36 @@
         </div>
     </div>
 </section>
+
+{% if course.is_premium %}
+<section class="cd-reviews">
+    <div class="container">
+        <p class="cd-section-label">Відгуки наших студентів</p>
+        <h2 class="cd-section-title">Що говорять про курс</h2>
+
+        <div class="cd-review-grid">
+            {% for review in course_reviews %}
+            <article class="cd-review-card">
+                <div class="cd-review-head">
+                    <div class="cd-review-avatar">{{ review.initials }}</div>
+                    <div>
+                        <div class="cd-review-name">{{ review.display_name }}</div>
+                        <div class="cd-review-stars">
+                            {% for i in "12345" %}
+                            <span class="{% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <p class="cd-review-text">"{{ review.text }}"</p>
+            </article>
+            {% empty %}
+            <div class="cd-review-empty">Поки що немає відгуків для цього курсу.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 
 <!-- ════════════════════════
      JS: Cart + Accordion

@@ -167,9 +167,9 @@
             {% for testimonial in testimonials %}
             <div class="testimonial-card animate-on-scroll">
                 <div class="testimonial-header">
-                    <div class="testimonial-avatar">{{ testimonial.user_name|slice:":2"|upper }}</div>
+                    <div class="testimonial-avatar">{{ testimonial.initials }}</div>
                     <div class="testimonial-info">
-                        <div class="testimonial-name">{{ testimonial.user_name }}</div>
+                        <div class="testimonial-name">{{ testimonial.display_name }}</div>
                         <div class="testimonial-stars">
                             {% for i in "12345" %}
                             {% if forloop.counter <= testimonial.rating %}⭐{% endif %} {% endfor %} </div>

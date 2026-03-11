@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(Course)
 admin.site.register(Review)
 admin.site.register(ContactMessage)
+admin.site.register(LessonProgress)
