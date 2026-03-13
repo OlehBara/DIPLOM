@@ -107,6 +107,36 @@
             min-width: 0;
         }
 
+        .support-chat-admin-tabs {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .support-chat-admin-tab {
+            flex-shrink: 0;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: #cbd5f5;
+            cursor: pointer;
+            background: rgba(15, 23, 42, 0.6);
+            max-width: 140px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .support-chat-admin-tab.is-active {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.9), rgba(30, 64, 175, 0.9));
+            color: #0f172a;
+        }
+
         .support-chat-avatar {
             width: 34px;
             height: 34px;
@@ -554,17 +584,20 @@
         data-user-id="{{ user.id }}"
         data-is-staff="{% if user.is_staff %}1{% else %}0{% endif %}">
         <div class="support-chat-header">
-            <div class="support-chat-header-main">
-                <div class="support-chat-avatar">S</div>
-                <div>
-                    <div class="support-chat-title">
-                        {% if user.is_staff %}Панель оператора{% else %}Чат з підтримкою{% endif %}
-                    </div>
-                    <div class="support-chat-subtitle">
-                        {% if user.is_staff %}Онлайн-діалоги з користувачами{% else %}Ми онлайн, щоб допомогти{% endif %}
+                <div class="support-chat-header-main">
+                    <div class="support-chat-avatar">S</div>
+                    <div>
+                        <div class="support-chat-title">
+                            {% if user.is_staff %}Панель оператора{% else %}Чат з підтримкою{% endif %}
+                        </div>
+                        <div class="support-chat-subtitle">
+                            {% if user.is_staff %}Онлайн-діалоги з користувачами{% else %}Ми онлайн, щоб допомогти{% endif %}
+                        </div>
+                        {% if user.is_staff %}
+                        <div class="support-chat-admin-tabs" id="supportChatAdminTabs"></div>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
             <button class="support-chat-close" id="supportChatClose" aria-label="Закрити чат">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -605,11 +638,13 @@
 
             const userId = parseInt(panel.dataset.userId || '0', 10);
             const isStaff = panel.dataset.isStaff === '1';
+            const adminTabs = document.getElementById('supportChatAdminTabs');
 
             let socket = null;
             let isOpen = false;
             let activeChatUserId = null;
             const allMessages = [];
+            const adminUsers = {}; // id -> { username, lastMessage }
 
             function ensureConnection() {
                 if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
@@ -642,27 +677,77 @@
             }
 
             function handleIncomingMessage(data) {
-            allMessages.push(data);
+                allMessages.push(data);
 
-            if (isStaff) {
-                // для адміна активний користувач за замовчуванням — останній не-адмін відправник
-                if (data.sender_id !== userId) {
-                    activeChatUserId = data.chat_user_id;
+                if (isStaff) {
+                    const chatUserId = data.chat_user_id;
+                    const chatUsername = data.chat_user_username || ('User #' + chatUserId);
+                    const preview = data.message || '';
+
+                    if (!adminUsers[chatUserId]) {
+                        adminUsers[chatUserId] = {
+                            id: chatUserId,
+                            username: chatUsername,
+                            last: preview,
+                        };
+                    } else {
+                        adminUsers[chatUserId].last = preview;
+                    }
+
+                    if (!activeChatUserId) {
+                        activeChatUserId = chatUserId;
+                    }
+                    renderAdminTabs();
                 }
+
+                renderMessages();
             }
-            renderMessages();
+
+            function renderAdminTabs() {
+                if (!isStaff || !adminTabs) return;
+
+                const ids = Object.keys(adminUsers);
+                if (!ids.length) {
+                    adminTabs.innerHTML = '';
+                    return;
+                }
+
+                // Ensure some active id
+                if (!activeChatUserId || !adminUsers[activeChatUserId]) {
+                    activeChatUserId = parseInt(ids[0], 10);
+                }
+
+                adminTabs.innerHTML = '';
+                ids
+                    .map(function (id) { return adminUsers[id]; })
+                    .sort(function (a, b) { return a.username.localeCompare(b.username); })
+                    .forEach(function (u) {
+                        const tab = document.createElement('button');
+                        tab.type = 'button';
+                        tab.className = 'support-chat-admin-tab' + (u.id === activeChatUserId ? ' is-active' : '');
+                        tab.textContent = u.username;
+                        tab.addEventListener('click', function () {
+                            activeChatUserId = u.id;
+                            renderAdminTabs();
+                            renderMessages();
+                        });
+                        adminTabs.appendChild(tab);
+                    });
+            }
 
             function renderMessages() {
                 if (!messagesEl) return;
                 messagesEl.innerHTML = '';
                 const fragment = document.createDocumentFragment();
 
-                const visibleMessages = allMessages.filter((m) => {
+                const visibleMessages = allMessages.filter(function (m) {
                     if (!isStaff) {
                         return m.chat_user_id === userId;
                     }
-                    // адмін бачить усі повідомлення від усіх користувачів
-                    return true;
+                    if (!activeChatUserId) {
+                        return false;
+                    }
+                    return m.chat_user_id === activeChatUserId;
                 });
 
                 visibleMessages.forEach((m) => {

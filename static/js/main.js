@@ -124,7 +124,10 @@ function initNavigation() {
 
     navLinks.forEach(link => {
         const href = link.getAttribute('href');
-        if (href === currentPath || (currentPath === '/' && href.includes('index'))) {
+        if (!href) {
+            return;
+        }
+        if (href === currentPath || (href === '/' && currentPath === '/')) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
