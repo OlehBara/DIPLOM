@@ -165,6 +165,30 @@ class LessonProgress(models.Model):
         return f'{self.user.username} -> {self.course.title} [{self.lesson_key}]'
 
 
+class ChatMessage(models.Model):
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='chat_messages',
+    )
+    chat_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='support_chat_messages',
+    )
+    message = models.TextField()
+    is_admin_reply = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'main_chatmessage'
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f'{self.sender} → {self.chat_user}: {self.message[:30]}'
+
+
 # Signals to create Profile automatically
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User as AuthUser

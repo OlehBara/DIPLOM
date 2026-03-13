@@ -45,17 +45,11 @@ def profile_view(request):
         user=request.user, is_completed=True
     ).select_related('course')
 
-    # Для адміна — список усіх повідомлень із форми зворотного зв'язку
-    contact_messages = None
-    if request.user.is_staff:
-        contact_messages = ContactMessage.objects.all().select_related('sender').order_by('-created_at')
-
     context = {
         'display_name': request.user.username,
         'display_email': request.user.email,
         'user_courses': user_courses,
         'completed_courses': completed_courses,
-        'contact_messages': contact_messages,
     }
     return render(request, 'main/profile.html', context)
 
