@@ -21,6 +21,13 @@ urlpatterns = [
     path('course/<int:course_id>/delete/', views.delete_course, name='delete_course'),
     path('add-to-cart/<int:course_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_detail, name='cart_detail'),
+    
+    # Password Reset Routes
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='main/password_reset_form.html'), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='main/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='main/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='main/password_reset_complete.html'), name='password_reset_complete'),
+    
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('courses/add/', views.add_course, name='add_course'),
     path('checkout/', views.checkout, name='checkout'),

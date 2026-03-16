@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Фінансові пастки - FinSmart{% endblock %}
@@ -485,20 +485,23 @@
                         });
                     } else {
                         completionSent = false;
-                        alert('Помилка: ' + data.message);
+                        showToast('Помилка: ' + data.message, 'error');
+
                     }
                 })
                 .catch(err => {
                     console.error('Error:', err);
                     completionSent = false;
-                    alert('Сталася помилка при збереженні результату.');
+                    showToast('Сталася помилка при збереженні результату.', 'error');
+
                 });
         }
 
         window.checkQ = function (n, cv) {
             const c = document.querySelector('input[name="q' + n + '"]:checked');
             if (!c) {
-                alert('Оберіть відповідь!');
+                showToast('Оберіть відповідь!', 'warning');
+
                 return;
             }
             const val = c.value;

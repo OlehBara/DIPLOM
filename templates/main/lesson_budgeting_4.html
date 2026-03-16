@@ -984,7 +984,8 @@
     function checkQ(n, cv) {
         const c = document.querySelector('input[name="q' + n + '"]:checked');
         if (!c) {
-            alert('Оберіть відповідь!');
+            showToast('Оберіть відповідь!', 'warning');
+
             return;
         }
         const val = c.value;

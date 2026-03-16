@@ -342,14 +342,16 @@ function addToCart(arg1, arg2) {
                 }, 2000);
 
             } else {
-                alert('Помилка: ' + data.message);
+                showToast('Помилка: ' + data.message, 'error');
+
                 btn.disabled = false;
                 btn.innerText = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Сталася помилка при додаванні товару');
+            showToast('Сталася помилка при додаванні товару', 'error');
+
             btn.disabled = false;
             btn.innerText = originalText;
         });
@@ -393,12 +395,14 @@ function removeFromCart(itemId) {
                     }
                 }
             } else {
-                alert(data.message);
+                showToast(data.message, 'error');
+
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Сталася помилка при видаленні курсу');
+            showToast('Сталася помилка при видаленні курсу', 'error');
+
         });
 }
 

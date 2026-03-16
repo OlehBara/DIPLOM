@@ -791,7 +791,8 @@
     });
     function checkQ(n, cv) {
         const chosen = document.querySelector('input[name="q' + n + '"]:checked');
-        if (!chosen) { alert('Оберіть відповідь!'); return; }
+        if (!chosen) { showToast('Оберіть відповідь!', 'warning'); return; }
+
         const val = chosen.value;
         document.querySelectorAll('[data-q="' + n + '"]').forEach(function (o) {
             if (o.dataset.val === cv) o.classList.add('correct');

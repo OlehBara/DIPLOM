@@ -845,7 +845,8 @@
 
     function checkQ(n, correctVal) {
         const chosen = document.querySelector('input[name="q' + n + '"]:checked');
-        if (!chosen) { alert('Оберіть відповідь!'); return; }
+        if (!chosen) { showToast('Оберіть відповідь!', 'warning'); return; }
+
         const val = chosen.value;
         const opts = document.querySelectorAll('[data-q="' + n + '"]');
         opts.forEach(function (o) {
