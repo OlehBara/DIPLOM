@@ -153,3 +153,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'entril2009@gmail.com' 
 EMAIL_HOST_PASSWORD = 'fsepcpbhsmvqfesb'
 DEFAULT_FROM_EMAIL = f"FinSmart <{EMAIL_HOST_USER}>"
+
+# Custom Authentication Backend
+AUTHENTICATION_BACKENDS = [
+    'main.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend', # Keep default backup
+]
+
