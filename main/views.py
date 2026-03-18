@@ -21,7 +21,7 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Реєстрація успішна! Ласкаво просимо.')
             return redirect('index')
         else:
