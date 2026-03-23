@@ -8,8 +8,8 @@ on:
 
 jobs:
   tests:
-    name: Tests
-    runs-on: ubuntu-latest
+    name: Testss
+    runs-on: ubuntu-latests
     needs: quality
 
     steps:
