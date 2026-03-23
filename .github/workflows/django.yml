@@ -25,13 +25,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          cd volunteer
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-django
 
       - name: Run tests with coverage
         run: |
-          cd volunteer
           pytest --cov=. --cov-report=html --cov-fail-under=60
 
       - name: Upload coverage report
@@ -39,7 +37,7 @@ jobs:
         if: always()
         with:
           name: coverage-report
-          path: volunteer/htmlcov
+          path: htmlcov
           retention-days: 7
 
   quality:
@@ -61,14 +59,14 @@ jobs:
 
       - name: Flake8 — PEP8 стиль і синтаксис
         continue-on-error: true
-        run: cd volunteer && flake8 .
+        run: flake8 .
 
       - name: Black — перевірка форматування
-        run: cd volunteer && black --check .
+        run: black --check .
 
       - name: isort — порядок імпортів
-        run: cd volunteer && isort --check-only .
+        run:  isort --check-only .
 
       - name: Bandit — security scan
         continue-on-error: true
-        run: cd volunteer && bandit -r . -x .venv,migrations -ll
+        run: bandit -r . -x .venv,migrations -ll
