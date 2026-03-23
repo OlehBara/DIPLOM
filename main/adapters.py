@@ -11,7 +11,7 @@ class AutoSignupSocialAdapter(DefaultSocialAccountAdapter):
         user = super().populate_user(request, sociallogin, data)
         if not user.username and user.email:
             # Беремо частину email до @ як username
-            base_username = user.email.split('@')[0]
+            base_username = user.email.split("@")[0]
             user.username = base_username
         return user
 

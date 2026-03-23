@@ -1,6 +1,7 @@
-from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from main.models import Course, Lesson, Quiz, Enrollment
+from django.core.management.base import BaseCommand
+
+from main.models import Course, Enrollment, Lesson, Quiz
 
 
 class Command(BaseCommand):
@@ -211,7 +212,9 @@ class Command(BaseCommand):
             },
         ]
 
-        self.stdout.write(self.style.MIGRATE_HEADING("Створення курсів, уроків та тестів..."))
+        self.stdout.write(
+            self.style.MIGRATE_HEADING("Створення курсів, уроків та тестів...")
+        )
 
         for course_info in courses_data:
             course, created = Course.objects.get_or_create(
@@ -234,7 +237,9 @@ class Command(BaseCommand):
                 course.is_active = True
                 course.save()
 
-            self.stdout.write(f"- Курс: {course.title} ({'створено' if created else 'оновлено'})")
+            self.stdout.write(
+                f"- Курс: {course.title} ({'створено' if created else 'оновлено'})"
+            )
 
             # Створюємо уроки та тести
             for lesson_data in course_info["lessons"]:
@@ -275,12 +280,17 @@ class Command(BaseCommand):
 
         # Автоматично записуємо всіх користувачів на всі 3 курси,
         # щоб одразу був доступ до уроків
-        self.stdout.write(self.style.MIGRATE_HEADING("Реєстрація користувачів на курси..."))
+        self.stdout.write(
+            self.style.MIGRATE_HEADING("Реєстрація користувачів на курси...")
+        )
         all_courses = Course.objects.filter(is_premium=True, is_active=True)
         for user in User.objects.all():
             for course in all_courses:
                 Enrollment.objects.get_or_create(user=user, course=course)
 
-        self.stdout.write(self.style.SUCCESS("LMS-контент успішно створено. "
-                                             "Запусти сервер і заходь у профіль, щоб проходити уроки."))
-
+        self.stdout.write(
+            self.style.SUCCESS(
+                "LMS-контент успішно створено. "
+                "Запусти сервер і заходь у профіль, щоб проходити уроки."
+            )
+        )

@@ -1,5 +1,6 @@
-from django.core.management.base import BaseCommand
 from django.apps import apps
+from django.core.management.base import BaseCommand
+
 from main.models import Course
 
 
@@ -30,13 +31,15 @@ class Command(BaseCommand):
             try:
                 course = Course.objects.get(title=title)
             except Course.DoesNotExist:
-                self.stdout.write(self.style.WARNING(f"Курс з назвою '{title}' не знайдено. Пропускаю."))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Курс з назвою '{title}' не знайдено. Пропускаю."
+                    )
+                )
                 continue
 
             lesson = (
-                Lesson.objects.filter(course=course)
-                .order_by("order", "id")
-                .first()
+                Lesson.objects.filter(course=course).order_by("order", "id").first()
             )
 
             if not lesson:
@@ -56,4 +59,3 @@ class Command(BaseCommand):
                     f"Оновлено video_url першого уроку курсу '{title}' -> {embed_url}"
                 )
             )
-

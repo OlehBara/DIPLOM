@@ -89,7 +89,9 @@ def write_mo(entries: dict[str, str], out_path: Path):
         k_bytes = k.encode("utf-8")
         v_bytes = entries[k].encode("utf-8")
         orig_table += struct.pack("II", len(k_bytes), string_data_offset + o_offset)
-        trans_table += struct.pack("II", len(v_bytes), string_data_offset + len(ids) + t_offset)
+        trans_table += struct.pack(
+            "II", len(v_bytes), string_data_offset + len(ids) + t_offset
+        )
         o_offset += len(k_bytes) + 1
         t_offset += len(v_bytes) + 1
 
@@ -132,4 +134,3 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

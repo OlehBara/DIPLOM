@@ -1,7 +1,8 @@
 import os
+
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'finsmart_project.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finsmart_project.settings")
 django.setup()
 
 from main.models import Course
@@ -14,7 +15,7 @@ free_courses_data = [
         "price": 0.00,
         "is_premium": False,
         "is_active": True,
-        "rating": 5.0
+        "rating": 5.0,
     },
     {
         "title": "Іпотека та житлові кредити",
@@ -23,7 +24,7 @@ free_courses_data = [
         "price": 0.00,
         "is_premium": False,
         "is_active": True,
-        "rating": 5.0
+        "rating": 5.0,
     },
     {
         "title": "Пенсійне планування",
@@ -32,7 +33,7 @@ free_courses_data = [
         "price": 0.00,
         "is_premium": False,
         "is_active": True,
-        "rating": 5.0
+        "rating": 5.0,
     },
     {
         "title": "Фінансові пастки та шахрайство",
@@ -41,7 +42,7 @@ free_courses_data = [
         "price": 0.00,
         "is_premium": False,
         "is_active": True,
-        "rating": 5.0
+        "rating": 5.0,
     },
     {
         "title": "Інфляція: чому ціни ростуть",
@@ -50,15 +51,14 @@ free_courses_data = [
         "price": 0.00,
         "is_premium": False,
         "is_active": True,
-        "rating": 5.0
-    }
+        "rating": 5.0,
+    },
 ]
 
 created_count = 0
 for course_data in free_courses_data:
     course, created = Course.objects.get_or_create(
-        title=course_data['title'],
-        defaults=course_data
+        title=course_data["title"], defaults=course_data
     )
     if created:
         created_count += 1

@@ -1,8 +1,9 @@
 import json
 
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
+
+from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .models import ChatMessage
 
@@ -37,9 +38,13 @@ class SupportChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if getattr(self, "user", None) and self.user.is_authenticated:
-            await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
+            await self.channel_layer.group_discard(
+                self.user_group_name, self.channel_name
+            )
             if self.user.is_staff:
-                await self.channel_layer.group_discard("admin_support", self.channel_name)
+                await self.channel_layer.group_discard(
+                    "admin_support", self.channel_name
+                )
 
     async def receive(self, text_data=None, bytes_data=None):
         if not text_data:
