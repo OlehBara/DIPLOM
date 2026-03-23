@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Курси - FinSmart{% endblock %}
+{% block title %}{% trans "Курси - FinSmart" %}{% endblock %}
 
 {% block content %}
 <!-- Page Header -->
 <section class="page-header">
     <div class="container">
-        <h1 class="page-title">Наші курси</h1>
+        <h1 class="page-title">{% trans "Наші курси" %}</h1>
         <p class="page-description">
-            Оберіть курс, який підходить саме вам, та почніть свій шлях до фінансової грамотності
+            {% trans "Оберіть курс, який підходить саме вам, та почніть свій шлях до фінансової грамотності" %}
         </p>
     </div>
 </section>
@@ -19,20 +20,19 @@
     <div class="container">
         <div class="courses-controls">
             <div class="search-box">
-                <input type="text" id="courseSearch" placeholder="Пошук курсів..." value="{{ search_query }}">
+                <input type="text" id="courseSearch" placeholder="{% trans 'Пошук курсів...' %}" value="{{ search_query }}">
             </div>
 
             <div class="filter-buttons">
-                <button class="filter-btn {% if current_category == 'all' %}active{% endif %}" data-category="all">Всі
-                    курси</button>
+                <button class="filter-btn {% if current_category == 'all' %}active{% endif %}" data-category="all">{% trans "Всі курси" %}</button>
                 <button class="filter-btn {% if current_category == 'budgeting' %}active{% endif %}"
-                    data-category="budgeting">Бюджетування</button>
+                    data-category="budgeting">{% trans "Бюджетування" %}</button>
                 <button class="filter-btn {% if current_category == 'investing' %}active{% endif %}"
-                    data-category="investing">Інвестиції</button>
+                    data-category="investing">{% trans "Інвестиції" %}</button>
                 <button class="filter-btn {% if current_category == 'credit' %}active{% endif %}"
-                    data-category="credit">Кредити</button>
+                    data-category="credit">{% trans "Кредити" %}</button>
                 <button class="filter-btn {% if current_category == 'pension' %}active{% endif %}"
-                    data-category="pension">Пенсії</button>
+                    data-category="pension">{% trans "Пенсії" %}</button>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
 <!-- Premium Courses Section -->
 <section class="premium-courses-section" style="padding: 40px 0; background-color: var(--bg-primary);">
     <div class="container">
-        <h2 class="section-title">Наші Преміум Курси</h2>
+        <h2 class="section-title">{% trans "Наші Преміум Курси" %}</h2>
         <div class="courses-grid">
             {% for course in premium_courses %}
             <div class="course-card animate-on-scroll"

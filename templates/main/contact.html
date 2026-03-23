@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Контакти - FinSmart{% endblock %}
+{% block title %}{% trans "Контакти - FinSmart" %}{% endblock %}
 
 {% block content %}
 <!-- Page Header -->
 <section class="page-header">
     <div class="container">
-        <h1 class="page-title">Зв'яжіться з нами</h1>
+        <h1 class="page-title">{% trans "Зв'яжіться з нами" %}</h1>
         <p class="page-description">
-            Ми завжди раді відповісти на ваші запитання та допомогти вам
+            {% trans "Ми завжди раді відповісти на ваші запитання та допомогти вам" %}
         </p>
     </div>
 </section>
@@ -20,9 +21,9 @@
         <div class="contact-container">
             <!-- Contact Info -->
             <div class="contact-info">
-                <h2>Контактна інформація</h2>
+                <h2>{% trans "Контактна інформація" %}</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 32px;">
-                    Заповніть форму або зв'яжіться з нами напряму
+                    {% trans "Заповніть форму або зв'яжіться з нами напряму" %}
                 </p>
 
                 <div class="contact-item">
@@ -34,7 +35,7 @@
                         </svg>
                     </div>
                     <div class="contact-details">
-                        <h3>Email</h3>
+                        <h3>{% trans "Email" %}</h3>
                         <p>info@finsmart.ua</p>
                     </div>
                 </div>
@@ -48,7 +49,7 @@
                         </svg>
                     </div>
                     <div class="contact-details">
-                        <h3>Телефон</h3>
+                        <h3>{% trans "Телефон" %}</h3>
                         <p>+380 (44) 123-45-67</p>
                     </div>
                 </div>
@@ -62,7 +63,7 @@
                         </svg>
                     </div>
                     <div class="contact-details">
-                        <h3>Адреса</h3>
+                        <h3>{% trans "Адреса" %}</h3>
                         <p>вул. Хрещатик, 1, Київ, 01001</p>
                     </div>
                 </div>

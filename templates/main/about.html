@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Про нас - FinSmart{% endblock %}
+{% block title %}{% trans "Про нас - FinSmart" %}{% endblock %}
 
 {% block content %}
 <!-- About Hero -->
 <section class="about-hero">
     <div class="container">
-        <h1 class="page-title">Про FinSmart</h1>
+        <h1 class="page-title">{% trans "Про FinSmart" %}</h1>
         <p class="page-description">
-            Ми створюємо майбутнє фінансової грамотності в Україні
+            {% trans "Ми створюємо майбутнє фінансової грамотності в Україні" %}
         </p>
     </div>
 </section>
@@ -34,17 +35,17 @@
         <div class="stats-grid">
             <div class="stat-card animate-on-scroll">
                 <div class="stat-number">{{ stats.total_courses }}+</div>
-                <div class="stat-label">Освітніх курсів</div>
+                <div class="stat-label">{% trans "Освітніх курсів" %}</div>
             </div>
 
             <div class="stat-card animate-on-scroll">
                 <div class="stat-number">{{ stats.total_reviews }}+</div>
-                <div class="stat-label">Відгуків студентів</div>
+                <div class="stat-label">{% trans "Відгуків студентів" %}</div>
             </div>
 
             <div class="stat-card animate-on-scroll">
                 <div class="stat-number">{{ stats.satisfaction_rate }}%</div>
-                <div class="stat-label">Задоволених студентів</div>
+                <div class="stat-label">{% trans "Задоволених студентів" %}</div>
             </div>
         </div>
     </div>
@@ -53,7 +54,7 @@
 <!-- Mission and Values -->
 <section class="advantages">
     <div class="container">
-        <h2 class="section-title">Наші цінності</h2>
+        <h2 class="section-title">{% trans "Наші цінності" %}</h2>
         <div class="advantages-grid">
             <div class="advantage-card animate-on-scroll">
                 <div class="advantage-icon">
@@ -61,7 +62,7 @@
                         <path d="M24 4L28 16H40L30 24L34 36L24 28L14 36L18 24L8 16H20L24 4Z" fill="white" />
                     </svg>
                 </div>
-                <h3 class="advantage-title">Якість</h3>
+                <h3 class="advantage-title">{% trans "Якість" %}</h3>
                 <p class="advantage-description">Ми створюємо тільки найкращі навчальні матеріали, перевірені експертами
                     галузі</p>
             </div>
@@ -74,7 +75,7 @@
                             fill="none" />
                     </svg>
                 </div>
-                <h3 class="advantage-title">Доступність</h3>
+                <h3 class="advantage-title">{% trans "Доступність" %}</h3>
                 <p class="advantage-description">Фінансова освіта має бути доступною для кожного, незалежно від статків
                 </p>
             </div>

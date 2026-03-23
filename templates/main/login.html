@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Вхід - FinSmart{% endblock %}
+{% block title %}{% trans "Вхід - FinSmart" %}{% endblock %}
 
 {% block content %}
 <div class="auth-page" style="background-image: url('{% static 'img/blue.png' %}');">
@@ -17,11 +18,11 @@
             <span class="auth-logo-text">FinSmart</span>
         </div>
 
-        <h2 class="auth-title">Вхід</h2>
+        <h2 class="auth-title">{% trans "Вхід" %}</h2>
 
         {% if form.errors %}
         <div class="auth-error">
-            Невірний логін або пароль. Спробуйте ще раз.
+            {% trans "Невірний логін або пароль. Спробуйте ще раз." %}
         </div>
         {% endif %}
 
@@ -30,22 +31,22 @@
 
             <div class="input-group">
                 {{ form.username }}
-                <label for="{{ form.username.id_for_label }}">Логін або Email</label>
+                <label for="{{ form.username.id_for_label }}">{% trans "Логін або Email" %}</label>
                 <div class="input-bar"></div>
             </div>
 
             <div class="input-group">
                 {{ form.password }}
-                <label for="{{ form.password.id_for_label }}">Пароль</label>
+                <label for="{{ form.password.id_for_label }}">{% trans "Пароль" %}</label>
                 <div class="input-bar"></div>
             </div>
 
             <div style="text-align: right; margin-bottom: 24px;">
-                <a href="{% url 'password_reset' %}" style="color: rgba(255,255,255,0.6); font-size: 13px; text-decoration: none; transition: color 0.2s;">Забули пароль?</a>
+                <a href="{% url 'password_reset' %}" style="color: rgba(255,255,255,0.6); font-size: 13px; text-decoration: none; transition: color 0.2s;">{% trans "Забули пароль?" %}</a>
             </div>
 
             <button type="submit" class="btn-auth">
-                УВІЙТИ
+                {% trans "УВІЙТИ" %}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -54,7 +55,7 @@
             </button>
         </form>
 
-        <div class="auth-divider"><span>або</span></div>
+        <div class="auth-divider"><span>{% trans "або" %}</span></div>
 
         <a href="/accounts/google/login/?process=login" class="btn-google" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -71,11 +72,11 @@
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     fill="#EA4335" />
             </svg>
-            Увійти через Google
+            {% trans "Увійти через Google" %}
         </a>
 
         <div class="auth-footer">
-            Ще не маєте акаунту? <a href="{% url 'register' %}">Зареєструватися</a>
+            {% trans "Ще не маєте акаунту?" %} <a href="{% url 'register' %}">{% trans "Зареєструватися" %}</a>
         </div>
     </div>
 </div>

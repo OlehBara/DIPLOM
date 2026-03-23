@@ -83,7 +83,7 @@ def index(request):
     """Головна сторінка"""
     # Отримуємо безкоштовні курси (які відображаються як популярні)
     # Strict definition: price=0 AND is_premium=False
-    free_courses = Course.objects.filter(is_active=True, is_premium=False, price=0)[:3]
+    free_courses = Course.objects.filter(is_active=True, is_premium=False, price=0)
     
     # Отримуємо преміум курси
     # Strict definition: is_premium=True

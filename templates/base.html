@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="uk">
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FinSmart - Система рекомендацій з фінансової грамотності{% endblock %}</title>
+    <title>{% block title %}{% trans "FinSmart - Система рекомендацій з фінансової грамотності" %}{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    {% load static %}
-    {% load i18n %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- Toastify.js -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -341,19 +342,18 @@
                 <!-- Desktop Navigation -->
                 <nav class="nav">
                     <a href="{% url 'index' %}"
-                        class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">Головна</a>
+                        class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">{% trans "Головна" %}</a>
                     <a href="{% url 'courses' %}"
-                        class="nav-link {% if request.resolver_match.url_name == 'courses' %}active{% endif %}">Курси</a>
+                        class="nav-link {% if request.resolver_match.url_name == 'courses' %}active{% endif %}">{% trans "Курси" %}</a>
                     <a href="{% url 'about' %}"
-                        class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">Про
-                        нас</a>
+                        class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">{% trans "Про нас" %}</a>
                     <a href="{% url 'contact' %}"
-                        class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Контакти</a>
+                        class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">{% trans "Контакти" %}</a>
                 </nav>
 
                 <!-- Header Actions -->
                 <div class="header-actions">
-                    <button class="theme-toggle" id="themeToggle" aria-label="Перемикач теми">
+                    <button class="theme-toggle" id="themeToggle" aria-label="{% trans 'Перемикач теми' %}">
                         <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="5" />
@@ -373,81 +373,7 @@
                         </svg>
                     </button>
 
-                    <!-- Language Switcher -->
-                    <form action="{% url 'set_language' %}" method="post" style="display:inline-block; margin-right: 15px; position: relative;" id="langForm">
-                        {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ request.get_full_path|default:'/' }}">
-                        
-                        <div class="lang-dropdown-wrapper">
-                            <button type="button" class="lang-toggle-btn" id="langToggleBtn" aria-label="Змінити мову">
-                                {% get_current_language as LANGUAGE_CODE %}
-                                {% if LANGUAGE_CODE == 'en' %}
-                                    <img src="https://flagcdn.com/w20/us.png" alt="English" title="English" style="width: 20px; border-radius: 2px;">
-                                {% else %}
-                                    <img src="https://flagcdn.com/w20/ua.png" alt="Українська" title="Українська" style="width: 20px; border-radius: 2px;">
-                                {% endif %}
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                            
-                            <div class="lang-dropdown-menu" id="langDropdownMenu">
-                                <button type="submit" name="language" value="uk" class="lang-option {% if LANGUAGE_CODE == 'uk' %}active{% endif %}">
-                                    <img src="https://flagcdn.com/w20/ua.png" alt="UK" style="width: 20px; border-radius: 2px;">
-                                    Українська
-                                </button>
-                                <button type="submit" name="language" value="en" class="lang-option {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
-                                    <img src="https://flagcdn.com/w20/us.png" alt="EN" style="width: 20px; border-radius: 2px;">
-                                    English
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    
-                    <style>
-                        .lang-dropdown-wrapper { position: relative; display: inline-block; }
-                        .lang-toggle-btn {
-                            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-                            color: var(--text-primary); padding: 8px 12px; border-radius: 8px;
-                            display: flex; align-items: center; cursor: pointer; transition: all 0.2s; height: 40px;
-                        }
-                        .lang-toggle-btn:hover { background: rgba(255, 255, 255, 0.15); }
-                        .lang-dropdown-menu {
-                            position: absolute; top: 100%; right: 0; margin-top: 8px;
-                            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
-                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); min-width: 140px;
-                            opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease;
-                            z-index: 100; padding: 6px 0;
-                        }
-                        .lang-dropdown-wrapper.active .lang-dropdown-menu {
-                            opacity: 1; visibility: visible; transform: translateY(0);
-                        }
-                        .lang-option {
-                            width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 16px;
-                            background: none; border: none; color: var(--text-primary); font-size: 14px;
-                            font-family: inherit; font-weight: 500; cursor: pointer; text-align: left;
-                            transition: background 0.2s;
-                        }
-                        .lang-option:hover { background: var(--bg-hover); }
-                        .lang-option.active { color: var(--brand-primary); background: rgba(56, 189, 248, 0.1); }
-                    </style>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const langToggleBtn = document.getElementById('langToggleBtn');
-                            const langDropdownWrapper = document.querySelector('.lang-dropdown-wrapper');
-                            if (langToggleBtn) {
-                                langToggleBtn.addEventListener('click', function(e) {
-                                    e.preventDefault();
-                                    langDropdownWrapper.classList.toggle('active');
-                                });
-                                document.addEventListener('click', function(e) {
-                                    if (!langDropdownWrapper.contains(e.target)) {
-                                        langDropdownWrapper.classList.remove('active');
-                                    }
-                                });
-                            }
-                        });
-                    </script>                    {% if not user.is_authenticated %}
+                    {% if not user.is_authenticated %}
                     <a href="{% url 'register' %}" class="btn-register-desktop"
                         style="background: #ffa048; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; margin-right: 15px; font-weight: 700; display: inline-flex; align-items: center;">Реєстрація</a>
                     {% else %}

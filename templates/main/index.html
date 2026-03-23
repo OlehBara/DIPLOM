@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}FinSmart - Система рекомендацій з фінансової грамотності{% endblock %}
+{% block title %}{% trans "FinSmart - Система рекомендацій з фінансової грамотності" %}{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -9,12 +10,11 @@
     <div class="container">
         <div class="hero-content">
             <div class="hero-left">
-                <h1 class="hero-title">Система рекомендацій з фінансової грамотності</h1>
+                <h1 class="hero-title">{% trans "Система рекомендацій з фінансової грамотності" %}</h1>
                 <p class="hero-description">
-                    Персоналізована система для покращення ваших фінансових знань. Навчайтеся у зручний час та досягайте
-                    фінансової свободи!
+                    {% trans "Персоналізована система для покращення ваших фінансових знань. Навчайтеся у зручний час та досягайте фінансової свободи!" %}
                 </p>
-                <a href="{% url 'courses' %}" class="btn-primary">Почати навчання</a>
+                <a href="{% url 'courses' %}" class="btn-primary">{% trans "Почати навчання" %}</a>
             </div>
 
             <div class="hero-right">
@@ -27,7 +27,7 @@
 <!-- Advantages Section -->
 <section class="advantages">
     <div class="container">
-        <h2 class="section-title">Наші переваги</h2>
+        <h2 class="section-title">{% trans "Наші переваги" %}</h2>
         <div class="advantages-grid">
             <div class="advantage-card animate-on-scroll">
                 <div class="advantage-icon">
@@ -38,8 +38,8 @@
                         <circle cx="24" cy="24" r="3" fill="white" />
                     </svg>
                 </div>
-                <h3 class="advantage-title">Орієнтована на користувача</h3>
-                <p class="advantage-description">Оберіть курс, який підходить саме вам — за темою та складністю</p>
+                <h3 class="advantage-title">{% trans "Орієнтована на користувача" %}</h3>
+                <p class="advantage-description">{% trans "Оберіть курс, який підходить саме вам — за темою та складністю" %}</p>
             </div>
 
             <div class="advantage-card animate-on-scroll">
@@ -50,8 +50,8 @@
                         <line x1="16" y1="28" x2="26" y2="28" stroke="white" stroke-width="3" />
                     </svg>
                 </div>
-                <h3 class="advantage-title">Безкоштовні матеріали</h3>
-                <p class="advantage-description">Доступ до якісних освітніх матеріалів без додаткових витрат</p>
+                <h3 class="advantage-title">{% trans "Безкоштовні матеріали" %}</h3>
+                <p class="advantage-description">{% trans "Доступ до якісних освітніх матеріалів без додаткових витрат" %}</p>
             </div>
 
             <div class="advantage-card animate-on-scroll">
@@ -62,8 +62,8 @@
                             stroke-linecap="round" />
                     </svg>
                 </div>
-                <h3 class="advantage-title">Зручна аналітика</h3>
-                <p class="advantage-description">Відстежуйте свій прогрес та досягнення в особистому кабінеті</p>
+                <h3 class="advantage-title">{% trans "Зручна аналітика" %}</h3>
+                <p class="advantage-description">{% trans "Відстежуйте свій прогрес та досягнення в особистому кабінеті" %}</p>
             </div>
         </div>
     </div>
@@ -72,10 +72,16 @@
 <!-- Popular Courses Section -->
 <section class="popular-courses">
     <div class="container">
-        <h2 class="section-title">Популярні курси</h2>
-        <div class="courses-grid">
+        <h2 class="section-title">{% trans "Популярні курси" %}</h2>
+    </div>
+
+    <!-- Carousel viewport — full width, clips overflow -->
+    <div class="carousel-viewport">
+        <div class="carousel-track" id="carouselTrack">
+
+            <!-- First copy -->
             {% for course in popular_courses %}
-            <div class="course-card animate-on-scroll">
+            <div class="course-card carousel-card">
                 <div class="course-icon" style="background: #E3F2FD;">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="24" cy="24" r="20" fill="#4A8FD5" />
@@ -94,7 +100,7 @@
                 </div>
             </div>
             {% empty %}
-            <div class="course-card animate-on-scroll">
+            <div class="course-card carousel-card">
                 <div class="course-icon" style="background: #E3F2FD;">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="24" cy="24" r="20" fill="#4A8FD5" />
@@ -113,9 +119,144 @@
                 </div>
             </div>
             {% endfor %}
+
+            <!-- Duplicate copy for seamless loop -->
+            {% for course in popular_courses %}
+            <div class="course-card carousel-card" aria-hidden="true">
+                <div class="course-icon" style="background: #E3F2FD;">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="24" r="20" fill="#4A8FD5" />
+                        <path d="M 24 24 L 24 8 A 16 16 0 0 1 38 24 Z" fill="#fff" />
+                        <path d="M 24 24 L 38 24 A 16 16 0 0 1 24 40 Z" fill="#7DB3E8" />
+                    </svg>
+                </div>
+                <h3 class="course-title">{{ course.title }}</h3>
+                <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                <div class="course-footer">
+                    <div class="course-rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span class="rating-text">{{ course.rating }}</span>
+                    </div>
+                    <a href="{% url 'courses' %}" class="btn-secondary">Переглянути</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="course-card carousel-card" aria-hidden="true">
+                <div class="course-icon" style="background: #E3F2FD;">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="24" r="20" fill="#4A8FD5" />
+                        <path d="M 24 24 L 24 8 A 16 16 0 0 1 38 24 Z" fill="#fff" />
+                        <path d="M 24 24 L 38 24 A 16 16 0 0 1 24 40 Z" fill="#7DB3E8" />
+                    </svg>
+                </div>
+                <h3 class="course-title">Основи бюджетування</h3>
+                <p class="course-description">Навчіться правильно планувати свій бюджет та контролювати витрати</p>
+                <div class="course-footer">
+                    <div class="course-rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span class="rating-text">4.9</span>
+                    </div>
+                    <a href="{% url 'courses' %}" class="btn-secondary">Переглянути</a>
+                </div>
+            </div>
+            {% endfor %}
+
         </div>
     </div>
 </section>
+
+<style>
+/* ── Carousel Viewport ── */
+.carousel-viewport {
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 0 40px;
+    /* Soft fade edges */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+}
+
+/* ── Force carousel cards always visible (override the opacity:0 default) ── */
+/* Also reset translateY so hover effect works correctly */
+.carousel-card {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+.carousel-card:hover {
+    transform: translateY(-8px) !important;
+}
+
+/* ── Scrolling track ── */
+@keyframes carousel-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.carousel-track {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 24px;
+    width: max-content;
+    animation: carousel-scroll 30s linear infinite;
+    will-change: transform;
+}
+
+/* Pause on hover over any card */
+.carousel-track:hover {
+    animation-play-state: paused;
+}
+
+/* ── Individual card sizing inside carousel ── */
+.carousel-card {
+    flex: 0 0 340px;
+    width: 340px;
+    padding: 24px;
+    cursor: pointer;
+    /* Make card a column so footer always sticks to the bottom */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Description grows to fill remaining space → footer always at bottom */
+.carousel-card .course-description {
+    flex: 1;
+}
+
+/* Footer stays horizontal: rating left, button right */
+.carousel-card .course-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+}
+
+/* ── Disable auto-scroll on mobile, enable swipe ── */
+@media (max-width: 768px) {
+    .carousel-viewport {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        -webkit-mask-image: none;
+        mask-image: none;
+        padding: 20px 16px 32px;
+    }
+    .carousel-track {
+        animation: none;  /* no auto-scroll on mobile */
+        width: max-content;
+    }
+    .carousel-card {
+        scroll-snap-align: start;
+        flex: 0 0 82vw;
+        width: 82vw;
+    }
+    /* Hide duplicate cards on mobile to avoid confusion */
+    .carousel-card[aria-hidden="true"] {
+        display: none;
+    }
+}
+</style>
 
 <!-- Paid Courses Section -->
 <section class="paid-courses" style="padding: 80px 0; background-color: var(--bg-primary);">
