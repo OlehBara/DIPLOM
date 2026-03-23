@@ -24,10 +24,9 @@ class Course(models.Model):
     is_premium = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     class Meta:
         managed = False
-        # ВАЖЛИВО: назва має збігатися з тим, що ми зробили в MySQL (RENAME TABLE)
         db_table = 'main_course' 
         indexes = [
             models.Index(fields=['category'], name='idx_course_category'),
