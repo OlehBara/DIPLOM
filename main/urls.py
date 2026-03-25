@@ -8,7 +8,6 @@ urlpatterns = [
     path("courses/", views.courses, name="courses"),
     path("about/", views.about, name="about"),
     path("contact/", views.contact, name="contact"),
-    # Цей рядок обов'язково!
     path("contact/ajax/", views.contact_ajax, name="contact_ajax"),
     path("register/", views.register, name="register"),
     path(
@@ -25,7 +24,6 @@ urlpatterns = [
     path("course/<int:course_id>/delete/", views.delete_course, name="delete_course"),
     path("add-to-cart/<int:course_id>/", views.add_to_cart, name="add_to_cart"),
     path("cart/", views.cart_detail, name="cart_detail"),
-    # Password Reset Routes
     path(
         "password_reset/",
         auth_views.PasswordResetView.as_view(

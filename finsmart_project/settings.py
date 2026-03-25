@@ -199,3 +199,6 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+# Custom test runner for unmanaged models
+TEST_RUNNER = 'main.test_runner.ManagedModelTestRunner'

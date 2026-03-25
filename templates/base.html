@@ -188,12 +188,16 @@
 
         .support-chat-body {
             flex: 1;
-            display: block;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
             background: radial-gradient(circle at 0 0, rgba(8, 47, 73, 0.9), rgba(15, 23, 42, 0.95));
+            min-height: 0;  /* crucial for flex child to respect overflow */
         }
 
         .support-chat-messages {
+            flex: 1;
+            min-height: 0;
             width: 100%;
             padding: 14px 14px 8px;
             overflow-y: auto;
@@ -754,8 +758,20 @@
             let socket = null;
             let isOpen = false;
             let activeChatUserId = null;
+            let reconnectDelay = 1000;   // start at 1s
+            let reconnectTimer = null;
             const allMessages = [];
             const adminUsers = {}; // id -> { username, lastMessage }
+
+            function scheduleReconnect() {
+                if (reconnectTimer) return;          // already scheduled
+                if (!isOpen) return;                 // panel closed, don't reconnect
+                reconnectTimer = setTimeout(function () {
+                    reconnectTimer = null;
+                    ensureConnection();
+                }, reconnectDelay);
+                reconnectDelay = Math.min(reconnectDelay * 2, 10000); // cap at 10s
+            }
 
             function ensureConnection() {
                 if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
@@ -766,11 +782,13 @@
                 socket = new WebSocket(wsUrl);
 
                 socket.onopen = function () {
+                    reconnectDelay = 1000;           // reset backoff on success
                     updateSendState();
                 };
 
                 socket.onclose = function () {
                     updateSendState();
+                    scheduleReconnect();              // auto-reconnect
                 };
 
                 socket.onerror = function () {

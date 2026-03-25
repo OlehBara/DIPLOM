@@ -1,5 +1,4 @@
 import json
-
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -79,19 +78,14 @@ def edit_profile(request):
 
 def index(request):
     """Головна сторінка"""
-    # Отримуємо безкоштовні курси (які відображаються як популярні)
-    # Strict definition: price=0 AND is_premium=False
     free_courses = Course.objects.filter(is_active=True, is_premium=False, price=0)
 
-    # Отримуємо преміум курси
-    # Strict definition: is_premium=True
     premium_courses = Course.objects.filter(is_active=True, is_premium=True)[:3]
 
-    # Отримуємо схвалені відгуки
     testimonials = Review.objects.filter(is_approved=True).select_related("user")[:4]
 
     context = {
-        "popular_courses": free_courses,  # Mapping free_courses to expected template variable
+        "popular_courses": free_courses,
         "premium_courses": premium_courses,
         "testimonials": testimonials,
     }
@@ -822,7 +816,6 @@ def mark_lesson_complete(request):
     try:
         data = json.loads(request.body)
         course_id = data.get("course_id")
-
         course = get_object_or_404(Course, id=course_id)
         enrollment, created = Enrollment.objects.get_or_create(
             user=request.user, course=course

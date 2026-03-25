@@ -45,7 +45,6 @@ class CartItem(models.Model):
         "auth.User", on_delete=models.CASCADE, null=True, blank=True
     )
     session_key = models.CharField(max_length=40, null=True, blank=True)
-    # db_constraint=False дозволяє ігнорувати жорсткі помилки MySQL при розбіжності типів
     course = models.ForeignKey(Course, on_delete=models.CASCADE, db_constraint=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -134,8 +133,6 @@ class Profile(models.Model):
 
 
 class Enrollment(models.Model):
-    """Зберігає придбані курси користувача"""
-
     user = models.ForeignKey(
         "auth.User", on_delete=models.CASCADE, related_name="enrollments"
     )
@@ -149,7 +146,7 @@ class Enrollment(models.Model):
     class Meta:
         managed = True
         db_table = "main_enrollment"
-        unique_together = ("user", "course")  # один запис на пару
+        unique_together = ("user", "course")
 
     def __str__(self):
         return f"{self.user.username} → {self.course.title}"
