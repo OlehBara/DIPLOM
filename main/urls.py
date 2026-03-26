@@ -85,4 +85,13 @@ urlpatterns = [
         name="mark_premium_lesson_complete",
     ),
     path("api/reviews/", views.submit_review, name="submit_review"),
+    # Subscriptions
+    path("subscriptions/verify/", views.student_verify, name="student_verify"),
+    path("subscriptions/family/", views.family_manage, name="family_manage"),
+    path(
+        "subscriptions/family/remove/<int:user_id>/",
+        views.family_remove_member,
+        name="family_remove_member",
+    ),
+    path("subscriptions/subscribe/<int:plan_id>/", views.subscribe, name="subscribe"),
 ]

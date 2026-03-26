@@ -5,29 +5,42 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    :root {
-        --v6: #6c22b8;
+    :root {--v6: #6c22b8;
         --v5: #8b3fd6;
         --v4: #a855f7;
         --green: #22c55e;
         --red: #ef4444;
         --gold: #f5b731;
         --teal: #14b8a6;
+        --radius: 16px;
+    }
+    [data-theme="dark"] .ls-wrap,
+    [data-theme="dark"] .ls-wrap ~ * {
         --bg: #0f0a1e;
+        --bg2: #1a0d2e;
         --card: #1e1535;
+        --card2: #251a3a;
         --txt: #f1ecff;
         --muted: #94a3b8;
         --border: rgba(168, 85, 247, .15);
-        --radius: 16px;
+    }
+
+    [data-theme="light"] .ls-wrap,
+    [data-theme="light"] .ls-wrap ~ * {
+        --bg: #f8f9fc;
+        --bg2: #ffffff;
+        --card: #ffffff;
+        --card2: #f1f5f9;
+        --txt: #1e293b;
+        --muted: #64748b;
+        --border: rgba(168, 85, 247, .2);
     }
 
     * {
         font-family: 'Inter', sans-serif;
         box-sizing: border-box;
     }
-
-    body {
-        background: var(--bg);
+    .ls-wrap {
         color: var(--txt);
     }
 
@@ -191,7 +204,7 @@
     .ls-prose {
         font-size: 15.5px;
         line-height: 1.85;
-        color: rgba(241, 236, 255, .85);
+        color: var(--txt); opacity: 0.85;
     }
 
     .ls-prose h2 {
@@ -245,7 +258,7 @@
 
     .ls-callout-text {
         font-size: 14.5px;
-        color: rgba(241, 236, 255, .8);
+        color: var(--txt); opacity: 0.8;
         line-height: 1.6;
     }
 
@@ -371,7 +384,7 @@
 
     .ls-opt-text {
         font-size: 14.5px;
-        color: rgba(241, 236, 255, .85);
+        color: var(--txt); opacity: 0.85;
     }
 
     .ls-quiz-actions {

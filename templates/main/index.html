@@ -300,6 +300,92 @@
     </div>
 </section>
 
+<!-- Plans & Pricing Section -->
+<section class="pricing-section" id="pricing" style="padding: 80px 0;">
+    <div class="container">
+        <h2 class="section-title">Плани та тарифи</h2>
+        <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: -20px auto 48px; font-size: 16px; line-height: 1.7;">
+            Оберіть підписку, яка підходить саме вам – отримайте доступ до всіх преміум-курсів.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; max-width: 700px; margin: 0 auto;">
+
+            <!-- Student Card -->
+            <div class="animate-on-scroll" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 36px 28px; text-align: center; position: relative; transition: transform 0.3s, box-shadow 0.3s;">
+                <div style="font-size: 40px; margin-bottom: 12px;">🎓</div>
+                <h3 style="color: var(--text-primary); font-size: 22px; font-weight: 800; margin-bottom: 6px;">Студентський</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">Знижка для студентів та учнів</p>
+
+                {% for plan in subscription_plans %}
+                    {% if plan.name == "student" %}
+                        <div style="margin-bottom: 24px;">
+                            <span style="font-size: 36px; font-weight: 800; color: var(--text-primary);">{{ plan.price }} грн</span>
+                            <span style="color: var(--text-muted); font-size: 14px;">/ {{ plan.duration_days }} днів</span>
+                        </div>
+
+                        {% if student_verification_status == "approved" %}
+                            <a href="{% url 'subscribe' plan.id %}" class="btn-primary" style="display: block; padding: 14px; border-radius: 12px; font-size: 15px;">
+                                Купити за спеціальною ціною
+                            </a>
+                        {% elif student_verification_status == "pending" %}
+                            <button disabled style="display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; background: rgba(148, 163, 184, 0.2); border: 1px solid var(--border-color); color: var(--text-muted); cursor: not-allowed;">
+                                ⏳ На перевірці
+                            </button>
+                        {% else %}
+                            <a href="{% url 'student_verify' %}" class="btn-primary" style="display: block; padding: 14px; border-radius: 12px; font-size: 15px;">
+                                Підтвердити статус студента
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <ul style="text-align: left; margin-top: 24px; padding: 0; list-style: none; font-size: 14px; color: var(--text-secondary);">
+                    <li style="margin-bottom: 8px;">✅ Доступ до всіх курсів</li>
+                    <li style="margin-bottom: 8px;">✅ Знижена ціна</li>
+                    <li>✅ Підтримка 24/7</li>
+                </ul>
+            </div>
+
+            <!-- Family Card -->
+            <div class="animate-on-scroll" style="background: linear-gradient(145deg, rgba(30, 64, 175, 0.15), var(--card-bg)); border: 2px solid #4a8fd5; border-radius: 20px; padding: 36px 28px; text-align: center; position: relative; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 8px 32px rgba(74, 143, 213, 0.15);">
+                <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #4a8fd5, #2c5282); color: white; padding: 4px 18px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">
+                    РЕКОМЕНДОВАНО
+                </div>
+                <div style="font-size: 40px; margin-bottom: 12px;">👨‍👩‍👧‍👦</div>
+                <h3 style="color: var(--text-primary); font-size: 22px; font-weight: 800; margin-bottom: 6px;">Сімейний</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">Для вас та до 3 членів родини</p>
+
+                {% for plan in subscription_plans %}
+                    {% if plan.name == "family" %}
+                        <div style="margin-bottom: 24px;">
+                            <span style="font-size: 36px; font-weight: 800; color: var(--text-primary);">{{ plan.price }} грн</span>
+                            <span style="color: var(--text-muted); font-size: 14px;">/ {{ plan.duration_days }} днів</span>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'subscribe' plan.id %}" class="btn-primary" style="display: block; padding: 14px; border-radius: 12px; font-size: 15px; background: linear-gradient(135deg, #4a8fd5, #2c5282);">
+                                Купити для сім'ї
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn-primary" style="display: block; padding: 14px; border-radius: 12px; font-size: 15px; background: linear-gradient(135deg, #4a8fd5, #2c5282);">
+                                Увійти для покупки
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <ul style="text-align: left; margin-top: 24px; padding: 0; list-style: none; font-size: 14px; color: var(--text-secondary);">
+                    <li style="margin-bottom: 8px;">✅ Доступ до всіх курсів</li>
+                    <li style="margin-bottom: 8px;">✅ До 3 членів родини</li>
+                    <li style="margin-bottom: 8px;">✅ Управління групою</li>
+                    <li>✅ Підтримка 24/7</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+
 <!-- Testimonials Section -->
 <section class="testimonials">
     <div class="container">

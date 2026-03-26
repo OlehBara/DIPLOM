@@ -33,6 +33,7 @@
                     data-category="credit">{% trans "Кредити" %}</button>
                 <button class="filter-btn {% if current_category == 'pension' %}active{% endif %}"
                     data-category="pension">{% trans "Пенсії" %}</button>
+                <a href="{% url 'index' %}#pricing" class="filter-btn" style="text-decoration: none;">💳 {% trans "Підписки" %}</a>
             </div>
         </div>
     </div>

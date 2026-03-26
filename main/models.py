@@ -198,13 +198,97 @@ class ChatMessage(models.Model):
         db_table = "main_chatmessage"
         ordering = ["timestamp"]
 
+
     def __str__(self):
         return f"{self.sender} → {self.chat_user}: {self.message[:30]}"
 
 
-from django.contrib.auth.models import User as AuthUser
+# ── Subscription System ──────────────────────────────────────────
 
-# Signals to create Profile automatically
+class SubscriptionPlan(models.Model):
+    PLAN_CHOICES = [
+        ("standard", "Standard"),
+        ("family", "Family"),
+        ("student", "Student"),
+    ]
+
+    name = models.CharField(max_length=20, choices=PLAN_CHOICES, unique=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    duration_days = models.PositiveIntegerField(default=30)
+
+    class Meta:
+        managed = True
+        db_table = "main_subscriptionplan"
+
+    def __str__(self):
+        return f"{self.get_name_display()} – {self.price} грн"
+
+
+class UserSubscription(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="subscription"
+    )
+    plan = models.ForeignKey(
+        SubscriptionPlan, on_delete=models.SET_NULL, null=True, related_name="subscriptions"
+    )
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        managed = True
+        db_table = "main_usersubscription"
+
+    def __str__(self):
+        return f"{self.user.username} – {self.plan}"
+
+
+class FamilyGroup(models.Model):
+    owner = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="owned_family"
+    )
+    members = models.ManyToManyField(
+        User, blank=True, related_name="family_memberships"
+    )
+
+    class Meta:
+        managed = True
+        db_table = "main_familygroup"
+
+    def __str__(self):
+        return f"Сім'я {self.owner.username} ({self.members.count()} учасників)"
+
+
+class StudentVerification(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "На перевірці"),
+        ("approved", "Підтверджено"),
+        ("rejected", "Відхилено"),
+    ]
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="student_verifications"
+    )
+    document_photo = models.ImageField(upload_to="verifications/")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending"
+    )
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = True
+        db_table = "main_studentverification"
+
+    def __str__(self):
+        return f"{self.user.username} – {self.get_status_display()}"
+
+
+# ── Signals ───────────────────────────────────────────────────────
+
+from django.contrib.auth.models import User as AuthUser
+from django.core.mail import send_mail
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -218,3 +302,23 @@ def create_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=AuthUser)
 def save_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+@receiver(post_save, sender=StudentVerification)
+def notify_student_approved(sender, instance, **kwargs):
+    if instance.status == "approved":
+        try:
+            send_mail(
+                subject="FinSmart – Ваш студентський статус підтверджено!",
+                message=(
+                    f"Вітаємо, {instance.user.username}!\n\n"
+                    "Ваш студентський статус було успішно підтверджено. "
+                    "Тепер ви можете придбати підписку за спеціальною студентською ціною.\n\n"
+                    "З повагою,\nКоманда FinSmart"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[instance.user.email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass

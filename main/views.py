@@ -13,7 +13,11 @@ from django.views.decorators.http import require_http_methods
 
 # from django.contrib.auth.forms import UserCreationForm # Replaced by custom form
 from .forms import ProfileUpdateForm, UserRegistrationForm, UserUpdateForm
-from .models import CartItem, ContactMessage, Course, Enrollment, LessonProgress, Review
+from .models import (
+    CartItem, ContactMessage, Course, Enrollment, FamilyGroup,
+    LessonProgress, Review, StudentVerification, SubscriptionPlan,
+    UserSubscription,
+)
 
 
 def register(request):
@@ -84,10 +88,20 @@ def index(request):
 
     testimonials = Review.objects.filter(is_approved=True).select_related("user")[:4]
 
+    # Subscription data
+    subscription_plans = SubscriptionPlan.objects.all()
+    student_verification_status = None
+    if request.user.is_authenticated:
+        sv = StudentVerification.objects.filter(user=request.user).order_by("-submitted_at").first()
+        if sv:
+            student_verification_status = sv.status
+
     context = {
         "popular_courses": free_courses,
         "premium_courses": premium_courses,
         "testimonials": testimonials,
+        "subscription_plans": subscription_plans,
+        "student_verification_status": student_verification_status,
     }
     return render(request, "main/index.html", context)
 
@@ -829,3 +843,152 @@ def mark_lesson_complete(request):
         )
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=400)
+
+
+# ── Subscription System Views ─────────────────────────────────────
+
+def has_course_access(user, course):
+    """Перевіряє чи має користувач доступ до курсу."""
+    if not user.is_authenticated:
+        return False
+    # 1. Individual enrollment
+    if Enrollment.objects.filter(user=user, course=course).exists():
+        return True
+    # 2. Active personal subscription (standard or student)
+    try:
+        sub = user.subscription
+        if sub.is_active and sub.end_date > timezone.now():
+            return True
+    except UserSubscription.DoesNotExist:
+        pass
+    # 3. Family membership – owner has active family subscription
+    family_groups = user.family_memberships.all()
+    for fg in family_groups:
+        try:
+            owner_sub = fg.owner.subscription
+            if (
+                owner_sub.is_active
+                and owner_sub.end_date > timezone.now()
+                and owner_sub.plan
+                and owner_sub.plan.name == "family"
+            ):
+                return True
+        except UserSubscription.DoesNotExist:
+            pass
+    return False
+
+
+@login_required
+def student_verify(request):
+    """Завантаження документа для студентської верифікації."""
+    existing = StudentVerification.objects.filter(user=request.user).order_by("-submitted_at").first()
+    if existing and existing.status == "pending":
+        messages.info(request, "Ваш запит на верифікацію вже на перевірці.")
+        return redirect("index")
+
+    if request.method == "POST":
+        photo = request.FILES.get("document_photo")
+        if not photo:
+            messages.error(request, "Будь ласка, завантажте фото документа.")
+            return redirect("student_verify")
+        StudentVerification.objects.create(user=request.user, document_photo=photo)
+        messages.success(request, "Документ надіслано на перевірку!")
+        return redirect("index")
+
+    return render(request, "main/student_verify.html", {"existing": existing})
+
+
+@login_required
+def family_manage(request):
+    """Управління сімейною групою."""
+    try:
+        family = request.user.owned_family
+    except FamilyGroup.DoesNotExist:
+        family = None
+
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+        if not email:
+            messages.error(request, "Введіть email учасника.")
+            return redirect("family_manage")
+
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        try:
+            member = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, f"Користувача з email {email} не знайдено.")
+            return redirect("family_manage")
+
+        if member == request.user:
+            messages.error(request, "Ви не можете додати себе.")
+            return redirect("family_manage")
+
+        # Check if user already in another family
+        if member.family_memberships.exists():
+            messages.error(request, f"{member.username} вже є учасником іншої сім'ї.")
+            return redirect("family_manage")
+
+        if not family:
+            family = FamilyGroup.objects.create(owner=request.user)
+
+        if family.members.count() >= 3:
+            messages.error(request, "Максимум 3 додаткових учасники.")
+            return redirect("family_manage")
+
+        family.members.add(member)
+        messages.success(request, f"{member.username} доданий до вашої сім'ї!")
+        return redirect("family_manage")
+
+    return render(request, "main/family_manage.html", {"family": family})
+
+
+@login_required
+def family_remove_member(request, user_id):
+    """Видалити учасника з сімейної групи."""
+    try:
+        family = request.user.owned_family
+    except FamilyGroup.DoesNotExist:
+        messages.error(request, "Сімейну групу не знайдено.")
+        return redirect("family_manage")
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    try:
+        member = User.objects.get(id=user_id)
+        family.members.remove(member)
+        messages.success(request, f"{member.username} видалений з вашої сім'ї.")
+    except User.DoesNotExist:
+        messages.error(request, "Користувача не знайдено.")
+
+    return redirect("family_manage")
+
+
+@login_required
+def subscribe(request, plan_id):
+    """Оформлення підписки."""
+    plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+
+    # Student plan requires approved verification
+    if plan.name == "student":
+        sv = StudentVerification.objects.filter(
+            user=request.user, status="approved"
+        ).first()
+        if not sv:
+            messages.error(request, "Спершу підтвердіть свій студентський статус.")
+            return redirect("student_verify")
+
+    from datetime import timedelta
+    end_date = timezone.now() + timedelta(days=plan.duration_days)
+
+    sub, created = UserSubscription.objects.update_or_create(
+        user=request.user,
+        defaults={"plan": plan, "end_date": end_date, "is_active": True},
+    )
+
+    # Auto-create family group for family plan
+    if plan.name == "family":
+        FamilyGroup.objects.get_or_create(owner=request.user)
+
+    messages.success(request, f"Підписку «{plan.get_name_display()}» успішно оформлено!")
+    return redirect("index")
